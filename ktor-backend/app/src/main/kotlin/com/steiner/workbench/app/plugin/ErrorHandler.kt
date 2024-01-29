@@ -31,5 +31,9 @@ fun Application.configureErrorHandler() {
         exception<NumberFormatException> { call, cause ->
             call.respond(HttpStatusCode.BadRequest, Response.Err("bad request! ${cause.message}"))
         }
+
+        exception<NullPointerException> { call, cause ->
+            call.respond(HttpStatusCode.NotFound, Response.Err("occur null pointer exception for not found: ${cause.message}"))
+        }
     }
 }

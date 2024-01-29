@@ -5,6 +5,8 @@ import com.steiner.workbench.todolist.model.Priority
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import com.steiner.workbench.common.`task-name-length`
+import com.steiner.workbench.common.util.min
+import io.ktor.server.plugins.requestvalidation.*
 
 @Serializable
 class UpdateTaskRequest(
@@ -19,5 +21,10 @@ class UpdateTaskRequest(
     val finishTime: Int?,
     val parentid: Int?
 ) {
-    fun validate() = length(data = name, max = `task-name-length`)
+    fun validate() = listOf(
+        min(data = id, value = 1),
+        length(data = name, max = `task-name-length`)
+    ).firstOrNull {
+        it is ValidationResult.Invalid
+    } ?: ValidationResult.Valid
 }

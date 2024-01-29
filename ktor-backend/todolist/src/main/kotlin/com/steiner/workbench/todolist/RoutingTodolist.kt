@@ -20,13 +20,51 @@ fun Application.routingTodolist() {
     val taskService: TaskService by inject<TaskService>()
     val taskGroupService: TaskGroupService by inject<TaskGroupService>()
     val taskProjectService: TaskProjectService by inject<TaskProjectService>()
+    val priorityService: PriorityService by inject<PriorityService>()
 
     routing {
         authenticate(`normal-jwt`) {
+            route("/todolist/priority") {
+                post {
+                    val request = call.receive<PostPriorityRequest>()
+                    call.respond(Response.Ok("insert ok", priorityService.insertOne(request)))
+                }
+
+                delete("/{id}") {
+                    val id = call.parameters["id"]!!.toInt()
+                    priorityService.deleteOne(id)
+                    call.respond(Response.Ok("delete ok", Unit))
+                }
+
+                put {
+                    val request = call.receive<UpdatePriorityRequest>()
+                    call.respond(Response.Ok("update ok", priorityService.updateOne(request)))
+                }
+
+                get("/{id}") {
+                    val id = call.parameters["id"]!!.toInt()
+                    val result = priorityService.findOne(id)!!
+                    call.respond(Response.Ok("this priority", result))
+                }
+
+                get {
+                    val taskid = call.request.queryParameters["taskid"]?.toIntOrNull() ?: throw NotFoundException("expect taskid")
+                    val result = priorityService.findAll(taskid)
+                    call.respond(Response.Ok("these priority", result))
+                }
+            }
+
             route("/todolist/tag") {
                 post {
                     val request = call.receive<PostTagRequest>()
                     call.respond(Response.Ok("insert ok", tagService.insertOne(request)))
+                }
+
+                delete("/{id}") {
+                    val id = call.parameters["id"]!!.toInt()
+                    tagService.deleteOne(id)
+
+                    call.respond(Response.Ok("delete ok", Unit))
                 }
 
                 put {
@@ -35,9 +73,8 @@ fun Application.routingTodolist() {
                 }
 
                 get {
-                    val projectid = call.request.queryParameters["projectid"]?.toIntOrNull()
-                        ?: throw NotFoundException("expected project id")
-                    call.respond(Response.Ok("all tags", tagService.findAllOfTask(projectid)))
+                    val parentid = call.request.queryParameters["parentid"]?.toIntOrNull() ?: throw NotFoundException("expect parentid")
+                    call.respond(Response.Ok("all tags", tagService.findAll(parentid)))
                 }
             }
 
@@ -62,8 +99,8 @@ fun Application.routingTodolist() {
             route("/todolist/task") {
                 post {
                     val request = call.receive<PostTaskRequest>()
-                    val taskgroup = taskGroupService.findOne(request.parentid)
-                        ?: throw NotFoundException("no such task group with id ${request.parentid}")
+                    val taskgroup = taskGroupService.findOne(request.parentid)!!
+
                     val result = taskService.insertOne(request)
 
                     call.respond(Response.Ok("insert ok", result))
@@ -71,29 +108,29 @@ fun Application.routingTodolist() {
 
                 post("/tag") {
                     val request = call.receive<PostTaskTagRequest>()
-                    val task = taskService.findOne(request.taskid)
-                        ?: throw NotFoundException("no such task with id ${request.taskid}")
-                    val taskgroup = taskGroupService.findOne(task.parentid)
-                        ?: throw NotFoundException("no such task group with id ${task.parentid}")
+                    val task = taskService.findOne(request.taskid)!!
+
+                    val taskgroup = taskGroupService.findOne(task.parentid)!!
+
                     taskService.insertTag(request)
 
                     call.respond(Response.Ok("insert tag ok", Unit))
                 }
 
                 delete("/{id}") {
-                    val id = call.request.queryParameters["id"]?.toIntOrNull() ?: throw NotFoundException("expect id")
-                    val task = taskService.findOne(id) ?: throw NotFoundException("no such task with id $id")
-                    val taskgroup = taskGroupService.findOne(task.parentid)
-                        ?: throw NotFoundException("no such taskgroup with id ${task.parentid}")
+                    val id = call.parameters["id"]!!.toInt()
+                    val task = taskService.findOne(id)!!
+                    val taskgroup = taskGroupService.findOne(task.parentid)!!
+
                     taskService.deleteOne(id)
                     call.respond(Response.Ok("delete ok", Unit))
                 }
 
                 delete("/deadline/{id}") {
-                    val id = call.request.queryParameters["id"]?.toIntOrNull() ?: throw NotFoundException("expect id")
-                    val task = taskService.findOne(id) ?: throw NotFoundException("no such task with id $id")
-                    val taskgroup = taskGroupService.findOne(task.parentid)
-                        ?: throw NotFoundException("no such task group with id ${task.parentid}")
+                    val id = call.parameters["id"]!!.toInt()
+                    val task = taskService.findOne(id)!!
+                    val taskgroup = taskGroupService.findOne(task.parentid)!!
+
                     taskService.removeDeadline(id)
 
                     call.respond(Response.Ok("remove deadline ok", Unit))
@@ -104,9 +141,8 @@ fun Application.routingTodolist() {
                         ?: throw NotFoundException("expect taskid")
                     val tagid = call.request.queryParameters["tagid"]?.toIntOrNull()
                         ?: throw NotFoundException("expect tagid")
-                    val task = taskService.findOne(taskid) ?: throw NotFoundException("no such task with id $taskid")
-                    val taskgroup = taskGroupService.findOne(task.parentid)
-                        ?: throw NotFoundException("no such task group with id ${task.parentid}")
+                    val task = taskService.findOne(taskid)!!
+                    val taskgroup = taskGroupService.findOne(task.parentid)!!
                     taskService.removeTag(taskid, tagid)
 
                     call.respond(Response.Ok("remove tag ok", Unit))
@@ -114,9 +150,9 @@ fun Application.routingTodolist() {
 
                 delete("/notify-time/{id}") {
                     val id = call.parameters["id"]!!.toInt()
-                    val task = taskService.findOne(id) ?: throw NotFoundException("no such task with id $id")
-                    val taskgroup = taskGroupService.findOne(task.parentid)
-                        ?: throw NotFoundException("no such task group with id ${task.parentid}")
+                    val task = taskService.findOne(id)!!
+                    val taskgroup = taskGroupService.findOne(task.parentid)!!
+
                     taskService.removeNotifyTime(id)
 
                     call.respond(Response.Ok("remove notify time ok", Unit))
@@ -125,17 +161,16 @@ fun Application.routingTodolist() {
                 put {
                     val request = call.receive<UpdateTaskRequest>()
                     val result = taskService.updateTask(request)
-                    val task = taskService.findOne(request.id)
-                        ?: throw NotFoundException("no such task with id ${request.id}")
-                    val taskgroup = taskGroupService.findOne(task.parentid)
-                        ?: throw NotFoundException("no such task group with id ${task.parentid}")
+                    val task = taskService.findOne(request.id)!!
+
+                    val taskgroup = taskGroupService.findOne(task.parentid)!!
 
                     call.respond(Response.Ok("update ok", result))
                 }
 
                 get("/{id}") {
                     val id = call.parameters["id"]!!.toInt()
-                    val result = taskService.findOne(id) ?: throw NotFoundException("no such task with id $id")
+                    val result = taskService.findOne(id)!!
                     call.respond(Response.Ok("this task", result))
                 }
 
@@ -143,21 +178,16 @@ fun Application.routingTodolist() {
 
             route("/todolist/taskgroup") {
                 post {
-                    val after = call.request.queryParameters["after"]?.toIntOrNull()
                     val request = call.receive<PostTaskGroupRequest>()
-
-                    val result = if (after == null) {
-                        taskGroupService.insertOne(request)
-                    } else {
-                        taskGroupService.insertOne(request, after)
-                    }
+                    val result = taskGroupService.insertOne(request)
+                    val taskProject = taskProjectService.findOne(result.parentid)!!
 
                     call.respond(Response.Ok("insert ok", result))
                 }
 
                 delete("/{id}") {
                     val id = call.parameters["id"]!!.toInt()
-                    val taskGroup = taskGroupService.findOne(id) ?: throw NotFoundException("no such task group with id $id")
+                    val taskGroup = taskGroupService.findOne(id)!!
                     taskGroupService.deleteOne(id)
 
                     call.respond(Response.Ok("delete ok", Unit))
@@ -166,7 +196,7 @@ fun Application.routingTodolist() {
                 put {
                     val request = call.receive<UpdateTaskGroupRequest>()
                     val result = taskGroupService.updateOne(request)
-
+                    val taskProject = taskProjectService.findOne(result.parentid)!!
                     call.respond(Response.Ok("update ok", result))
                 }
 
@@ -177,7 +207,7 @@ fun Application.routingTodolist() {
 
                 get("/{id}") {
                     val id = call.parameters["id"]!!.toInt()
-                    val result = taskGroupService.findOne(id) ?: throw NotFoundException("no such task group with id $id")
+                    val result = taskGroupService.findOne(id)!!
                     call.respond(Response.Ok("this taskgroup", result))
                 }
 
@@ -215,7 +245,7 @@ fun Application.routingTodolist() {
 
                 get("/{id}") {
                     val id = call.parameters["id"]!!.toInt()
-                    val result = taskProjectService.findOne(id) ?: throw NotFoundException("no such task project with id $id")
+                    val result = taskProjectService.findOne(id)!!
                     call.respond(Response.Ok("this task project", result))
                 }
             }

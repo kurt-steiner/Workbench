@@ -8,6 +8,7 @@ import com.steiner.workbench.todolist.table.Priorities
 import com.steiner.workbench.todolist.table.Priorities.select
 import com.steiner.workbench.todolist.table.TaskPriority
 import com.steiner.workbench.todolist.util.mustExistIn
+import io.ktor.server.plugins.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -21,6 +22,15 @@ class PriorityService(val database: Database) {
     }
 
     suspend fun insertOne(request: PostPriorityRequest): Priority = dbQuery(database) {
+        val exist = with (Priorities) {
+            selectAll().where((parentid eq request.parentid) and (name eq request.name))
+                .firstOrNull() != null
+        }
+
+        if (exist) {
+            throw BadRequestException("priority ${request.name} duplicate")
+        }
+
         val id = with (Priorities) {
             insert {
                 it[name] = request.name
@@ -46,6 +56,17 @@ class PriorityService(val database: Database) {
         }
     }
 
+    suspend fun findAll(taskid: Int): List<Priority> = dbQuery(database) {
+        with (TaskPriority) {
+            selectAll().where(this.taskid eq taskid)
+                .map {
+                    it[priorityid]
+                }.map {
+                    findOne(it.value)!!
+                }
+        }
+
+    }
     suspend fun updateOne(request: UpdatePriorityRequest): Priority = dbQuery(database) {
         mustExistIn(request.id, Priorities)
 
@@ -82,5 +103,6 @@ class PriorityService(val database: Database) {
 
     suspend fun clear() = dbQuery(database) {
         Priorities.deleteAll()
+        TaskPriority.deleteAll()
     }
 }

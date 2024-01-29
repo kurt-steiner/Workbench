@@ -14,7 +14,6 @@ class PostTaskRequest(
     val parentid: Int,
     val note: String?,
     val priority: Priority,
-    val tags: List<Tag>?,
     val deadline: LocalDateTime?,
     val notifyTime: LocalDateTime?,
     val expectTime: Int

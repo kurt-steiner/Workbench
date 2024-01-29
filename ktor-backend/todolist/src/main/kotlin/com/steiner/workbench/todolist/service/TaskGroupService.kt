@@ -23,27 +23,8 @@ class TaskGroupService(val database: Database, val taskService: TaskService) {
 
     suspend fun insertOne(request: PostTaskGroupRequest): TaskGroup = dbQuery(database) {
         mustExistIn(request.parentid, TaskProjects)
-
-        val count = TaskGroups.selectAll().count().toInt()
-        val nowLocalDateTime = now()
-
-        val id = with (TaskGroups) {
-            insert {
-                it[parentid] = request.parentid
-                it[index] = count
-                it[name] = request.name
-                it[createTime] = nowLocalDateTime
-                it[updateTime] = nowLocalDateTime
-            } get this.id
-        }
-
-        findOne(id.value)!!
-    }
-
-    suspend fun insertOne(request: PostTaskGroupRequest, after: Int): TaskGroup = dbQuery(database) {
-        mustExistIn(request.parentid, TaskProjects)
         with (TaskGroups) {
-            update({ (parentid eq request.parentid) and (index greater after)}) {
+            update({ (parentid eq request.parentid) and (index greater (request.after ?: -1))}) {
                 with (SqlExpressionBuilder) {
                     it.update(index, index + 1)
                 }
@@ -52,7 +33,7 @@ class TaskGroupService(val database: Database, val taskService: TaskService) {
             val nowLocalDateTime = now()
             val id = insert {
                 it[parentid] = request.parentid
-                it[index] = after + 1
+                it[index] = (request.after ?: -1) + 1
                 it[name] = request.name
                 it[createTime] = nowLocalDateTime
                 it[updateTime] = nowLocalDateTime

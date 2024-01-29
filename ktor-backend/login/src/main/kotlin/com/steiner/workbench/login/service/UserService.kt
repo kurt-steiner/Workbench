@@ -89,17 +89,17 @@ class UserService(val database: Database, val roleService: RoleService) {
         findOne(id.value)!!
     }
 
-    suspend fun updateOne(request: UpdateUserRequest): User = dbQuery(database) {
+    suspend fun updateOne(request: UpdateUserRequest, id: Int): User = dbQuery(database) {
         val ifexist = with (Users) {
-            selectAll().where(id eq request.id).firstOrNull() != null
+            selectAll().where(this.id eq id).firstOrNull() != null
         }
 
         if (!ifexist) {
-            throw BadRequestException("no such user")
+            throw NotFoundException("no such user")
         }
 
         with (Users) {
-            update({ id eq request.id }) {
+            update({ this@with.id eq id }) {
                 if (request.username != null) {
                     it[name] = request.username
                 }
@@ -118,7 +118,7 @@ class UserService(val database: Database, val roleService: RoleService) {
             }
         }
 
-        findOne(request.id)!!
+        findOne(id)!!
     }
 
     suspend fun findOne(id: Int): User? = dbQuery(database) {

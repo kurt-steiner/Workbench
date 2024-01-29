@@ -4,13 +4,21 @@ import com.steiner.workbench.common.util.length
 import io.ktor.server.plugins.requestvalidation.*
 import kotlinx.serialization.Serializable
 import com.steiner.workbench.common.`task-group-name-length`
+import com.steiner.workbench.common.util.min
 
 @Serializable
 class PostTaskGroupRequest(
     val parentid: Int,
-    val name: String
+    val name: String,
+    val after: Int?
 ) {
     fun validate(): ValidationResult {
-        return length(data = name, max = `task-group-name-length`)
+        return listOf(
+            length(data = name, max = `task-group-name-length`),
+            min(data = after, value = 0),
+            min(data = parentid, value = 1)
+        ).firstOrNull {
+            it is ValidationResult.Invalid
+        } ?: ValidationResult.Valid
     }
 }

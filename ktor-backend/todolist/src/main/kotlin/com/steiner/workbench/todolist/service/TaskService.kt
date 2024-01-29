@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class TaskService(val database: Database, val tagService: TagService, val subtaskService: SubTaskService) {
+class TaskService(val database: Database, val taskGroupService: TaskGroupService, val taskProjectService: TaskProjectService, val tagService: TagService, val subtaskService: SubTaskService) {
     init {
         transaction(database) {
             SchemaUtils.create(Tasks)
@@ -67,12 +67,26 @@ class TaskService(val database: Database, val tagService: TagService, val subtas
         mustExistIn(request.tagid, Tags)
         mustExistIn(request.taskid, Tasks)
 
-        val exist = with (TaskTag) {
+        val task = with (Tasks) {
+            selectAll().where(this.id eq request.taskid)
+                .first().let {
+                    findOne(request.taskid)!!
+                }
+        }
+
+        val taskGroup = taskGroupService.findOne(task.parentid)!!
+        val taskProjectId = taskGroup.parentid
+
+        val exist1 = with (Tags) {
+            selectAll().where(parentid eq taskProjectId)
+                .firstOrNull() != null
+        }
+        val exist2 = with (TaskTag) {
             selectAll().where(tagid eq request.tagid)
                 .firstOrNull() != null
         }
 
-        if (!exist) {
+        if (exist1 && !exist2) {
             with (TaskTag) {
                 insert {
                     it[taskid] = request.taskid
@@ -115,6 +129,10 @@ class TaskService(val database: Database, val tagService: TagService, val subtas
         with (Tasks) {
             deleteWhere {
                 id.inList(taskids)
+            }
+
+            TaskPriority.deleteWhere {
+                this@with.id eq this.taskid
             }
         }
     }

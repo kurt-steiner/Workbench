@@ -51,7 +51,7 @@ fun Application.configureKoin() {
             }
 
             single {
-                TaskService(get(), get(), get())
+                TaskService(get(), get(), get(), get(), get())
             }
 
             single {

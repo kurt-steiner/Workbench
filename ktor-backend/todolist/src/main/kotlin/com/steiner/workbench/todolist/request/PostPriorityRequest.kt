@@ -16,6 +16,7 @@ class PostPriorityRequest(
         return listOf(
             length(data = name, max = `priority-name-length`),
             min(data = order, value = 0),
+            min(data = parentid, value = 1)
         ).firstOrNull {
             it is ValidationResult.Invalid
         } ?: ValidationResult.Valid

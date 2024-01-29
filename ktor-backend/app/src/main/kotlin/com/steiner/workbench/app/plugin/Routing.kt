@@ -48,7 +48,7 @@ fun Application.configureRouting() {
             get("/download/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull()
                 if (id == null) {
-                    throw BadRequestException("no such image item with id $id")
+                    throw NotFoundException("no such image item with id $id")
                 }
 
                 val imageitem = imageItemService.findOne(id)

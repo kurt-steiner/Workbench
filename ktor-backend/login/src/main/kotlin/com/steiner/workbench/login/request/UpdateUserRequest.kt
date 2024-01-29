@@ -12,7 +12,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class UpdateUserRequest(
-    val id: Int,
     val username: String?,
     val email: String?,
     val enabled: Boolean?,
@@ -21,7 +20,7 @@ class UpdateUserRequest(
 ) {
     fun validate(): ValidationResult {
         return listOf(
-            length(data = username, min = `common-string-length-min`, max = `user-request-username-length-max`),
+            length(data = username, max = `user-request-username-length-max`),
             length(data = email, max = `user-request-email-length-max`),
             between(data = passwordLength, min = `common-string-length-min`, max = `user-request-password-length-max`),
             vEmail(data = email)

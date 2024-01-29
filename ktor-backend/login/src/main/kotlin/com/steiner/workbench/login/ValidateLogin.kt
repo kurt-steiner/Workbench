@@ -6,8 +6,6 @@ import com.steiner.workbench.login.request.PostUserRequest
 import com.steiner.workbench.login.request.UpdateUserRequest
 import io.ktor.server.plugins.requestvalidation.*
 
-val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$".toRegex()
-
 fun RequestValidationConfig.validateLogin() {
     validate<PostUserRequest> {
         it.validate()

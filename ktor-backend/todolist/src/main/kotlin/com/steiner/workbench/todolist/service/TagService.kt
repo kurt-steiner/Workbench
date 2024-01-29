@@ -53,6 +53,20 @@ class TagService(val database: Database) {
 
     }
 
+    suspend fun deleteOne(id: Int) = dbQuery(database) {
+        with (TaskTag) {
+            deleteWhere {
+                tagid eq id
+            }
+        }
+
+        with (Tags) {
+            deleteWhere {
+                this.id eq id
+            }
+        }
+    }
+
     suspend fun deleteAll(parentid: Int) = dbQuery(database) {
         with (Tags) {
             deleteWhere {
@@ -77,6 +91,15 @@ class TagService(val database: Database) {
             findOne(request.id)!!
         } else {
             throw BadRequestException("there is already a tag named ${request.name}")
+        }
+    }
+
+    suspend fun findAll(parentid: Int): List<Tag> = dbQuery(database) {
+        with (Tags) {
+            selectAll().where(this.parentid eq parentid)
+                .map {
+                    findOne(it[id].value)!!
+                }
         }
     }
 
@@ -117,5 +140,6 @@ class TagService(val database: Database) {
 
     suspend fun clear() = dbQuery(database) {
         Tags.deleteAll()
+        TaskTag.deleteAll()
     }
 }

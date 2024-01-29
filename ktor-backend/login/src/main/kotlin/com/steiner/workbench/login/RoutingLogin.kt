@@ -14,6 +14,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import com.steiner.workbench.common.`normal-jwt`
 import com.steiner.workbench.common.util.Response
+import io.ktor.server.plugins.*
 import org.koin.ktor.ext.inject
 
 fun Application.routingLogin() {
@@ -45,8 +46,10 @@ fun Application.routingLogin() {
             }
 
             put("/user") {
+                val principal = call.principal<IdPrincipal>()!!
                 val request = call.receive<UpdateUserRequest>()
-                val user = userService.updateOne(request)
+
+                val user = userService.updateOne(request, principal.id)
                 call.respond(Response.Ok("update ok", user))
             }
         }

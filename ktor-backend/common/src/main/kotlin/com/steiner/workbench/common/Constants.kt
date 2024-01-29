@@ -30,7 +30,7 @@ const val `priority-name-length` = 16
 const val `user-request-username-length-max` = `user-name-length`
 const val `user-request-password-length-max` = 16
 const val `user-request-email-length-max` = `user-email-length`
-const val `common-string-length-min` = 5
+const val `common-string-length-min` = 1
 
 val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$".toRegex()
 val hexColorRegex = "^#(?:[0-9a-fA-F]{3}){1,2}\$\n".toRegex()
