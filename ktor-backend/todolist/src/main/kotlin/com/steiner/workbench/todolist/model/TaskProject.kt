@@ -9,7 +9,6 @@ class TaskProject(
     val index: Int,
     val name: String,
     val avatarid: Int?,
-    val userid: Int,
     val profile: String?,
     val createTime: LocalDateTime,
     val updateTime: LocalDateTime

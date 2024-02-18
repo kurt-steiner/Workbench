@@ -2,10 +2,9 @@ package com.steiner.workbench.app.plugin
 
 import com.steiner.workbench.common.service.ImageItemService
 import com.steiner.workbench.common.util.SimpleJWT
-import com.steiner.workbench.login.service.RoleService
-import com.steiner.workbench.login.service.UserService
 import com.steiner.workbench.todolist.service.*
 import io.ktor.server.application.*
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
@@ -27,14 +26,6 @@ fun Application.configureKoin() {
             }
 
             single {
-                RoleService(get())
-            }
-
-            single {
-                UserService(get(), get())
-            }
-
-            single {
                 ImageItemService(get())
             }
 
@@ -51,15 +42,30 @@ fun Application.configureKoin() {
             }
 
             single {
-                TaskService(get(), get(), get(), get(), get())
+                TaskService(
+                    database = get()
+                )
             }
 
             single {
-                TaskGroupService(get(), get())
+                TaskGroupService(
+                    database = get(),
+                )
             }
 
             single {
-                TaskProjectService(get(), get(), get())
+                TaskProjectService(
+                    database = get(),
+                    taskGroupService = get(),
+                    tagService = get()
+                )
+            }
+
+            single {
+                Json {
+                    ignoreUnknownKeys = true
+                    classDiscriminator = "type"
+                }
             }
         }
 

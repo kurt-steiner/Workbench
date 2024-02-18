@@ -8,13 +8,11 @@ import io.ktor.server.plugins.requestvalidation.*
 
 @Serializable
 class PostTaskProjectRequest(
-    val userid: Int,
     val name: String,
     val avatarid: Int?,
     val profile: String?
 ) {
     fun validate() = listOf(
-        min(data = userid, value = 1),
         length(data = name, max = `task-project-name-length`),
         min(data = avatarid, value = 1)
     ).firstOrNull {

@@ -21,17 +21,10 @@ class SubTaskService(val database: Database) {
     suspend fun insertOne(request: PostSubTaskRequest): SubTask = dbQuery(database) {
         mustExistIn(request.parentid, Tasks)
 
-        with (SubTasks) {
-            update({ parentid eq request.parentid}) {
-                with (SqlExpressionBuilder) {
-                    it.update(index, index + 1)
-                }
-            }
-        }
-
         val id = with (SubTasks) {
+            val count = selectAll().where(parentid eq request.parentid).count().toInt()
             insert {
-                it[index] = 0
+                it[index] = count
                 it[parentid] = request.parentid
                 it[name] = request.name
                 it[isdone] = false

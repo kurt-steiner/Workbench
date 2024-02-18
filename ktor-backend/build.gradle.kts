@@ -9,7 +9,8 @@ group = "com.steiner.workbench"
 version = "0.0.1"
 
 application {
-    mainClass.set("io.ktor.server.cio.EngineMain")
+    // mainClass.set("io.ktor.server.cio.EngineMain")
+    mainClass = "com.steiner.workbench.app.MainKt"
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -17,6 +18,10 @@ application {
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    implementation(project(":app"))
 }
 
 subprojects {
@@ -28,5 +33,13 @@ subprojects {
         plugin("org.jetbrains.kotlin.jvm")
         plugin("io.ktor.plugin")
         plugin("org.jetbrains.kotlin.plugin.serialization")
+    }
+
+    dependencies {
+        testImplementation("org.jetbrains.kotlin:kotlin-test:+")
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 }

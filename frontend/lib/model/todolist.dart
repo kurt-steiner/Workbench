@@ -1,182 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/utils.dart';
+import 'package:frontend/model/enumeration.dart';
+import 'package:frontend/util/extensions.dart';
 
-const int LOW_PRIORITY = 0;
-const int NORMAL_PRIORITY = 1;
-const int HIGH_PRIORITY = 2;
 
-class Tag {
+class Priority {
   int id;
   String name;
+  int order;
   int parentid;
-  Color color;
+  PriorityColor color;
 
-  Tag({required this.id, required this.name, required this.parentid, required this.color});
+  Color get trueColor => priorityColors[color]!;
 
-  @override
-  bool operator ==(Object other) {
-    // TODO: implement ==
-    if (other.runtimeType != Tag) {
-      return false;
-    }
-
-    Tag otherTag = other as Tag;
-    return id == otherTag.id;
-  }
-
-  static Tag fromJson(Map<String, dynamic> json) {
-    return Tag(
-      id: json["id"],
-      name: json["name"],
-      parentid: json["parentid"],
-      // TODO transform string to Color, like red, blue, #000000 -> Color
-      color: HexColor.fromHex(json["color"])
-    );
-  }
-}
-
-class TaskProject {
-  int id;
-  int index;
-  String name;
-  int avatarid;
-  int userid;
-  String? profile;
-  DateTime createTime;
-  DateTime updateTime;
-
-  TaskProject({
-    required this.id,
-    required this.index,
-    required this.name,
-    required this.avatarid,
-    required this.userid,
-    this.profile,
-    required this.createTime,
-    required this.updateTime
-  });
-
-  static TaskProject fromJson(Map<String, dynamic> json) {
-    return TaskProject(
-        id: json["id"],
-        index: json["index"],
-        name: json["name"],
-        avatarid: json["avatarid"],
-        userid: json["userid"],
-        profile: json["profile"],
-        createTime: parseIntoDateTime(json["createTime"]),
-        updateTime: parseIntoDateTime(json["updateTime"])
-    );
-  }
-}
-
-class TaskGroup {
-  int id;
-  int index;
-  String name;
-  List<Task> tasks;
-  DateTime createTime;
-  DateTime updateTime;
-  int parentid;
-  
-  TaskGroup({
-    required this.id,
-    required this.index,
-    required this.name,
-    required this.tasks,
-    required this.createTime,
-    required this.updateTime,
-    required this.parentid
-  });
-
-  static TaskGroup fromJson(Map<String, dynamic> json) {
-    return TaskGroup(
-        id: json["id"],
-        index: json["index"],
-        name: json["name"],
-        tasks: json["tasks"].map<Task>((e) => Task.fromJson(e)).toList(),
-        createTime: parseIntoDateTime(json["createTime"]),
-        updateTime: parseIntoDateTime(json["updateTime"]),
-        parentid: json["parentid"]
-    );
-  }
-}
-
-class Task {
-  int id;
-  String name;
-  int index;
-  bool isdone;
-  int priority;
-  String? note;
-  DateTime createTime;
-  DateTime updateTime;
-  List<SubTask>? subtasks;
-  DateTime? deadline;
-  DateTime? notifyTime;
-  List<Tag>? tags;
-  int parentid;
-  int expectTime;
-  int finishTime;
-
-  Task({
+  Priority({
     required this.id,
     required this.name,
-    required this.index,
-    required this.isdone,
-    required this.priority,
-    required this.createTime,
-    required this.updateTime,
+    required this.order,
     required this.parentid,
-    required this.expectTime,
-    required this.finishTime,
-    this.note,
-    this.subtasks,
-    this.deadline,
-    this.notifyTime,
-    this.tags,
+    required this.color,
   });
 
-  static Task fromJson(Map<String, dynamic> json) {
-    DateTime? deadline = null;
-    DateTime? notifyTime = null;
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "name": name,
+      "order": order,
+      "parentid": parentid,
+      "color": color.toString()
+    };
+  }
 
-    if (json["deadline"] != null) {
-      deadline = parseIntoDateTime(json["deadline"]);
-    }
-
-    if (json["notifyTime"] != null) {
-      notifyTime = parseIntoDateTime(json["notifyTime"]);
-    }
-
-    return Task(
+  factory Priority.fromJson(Map<String, dynamic> json) {
+    return Priority(
       id: json["id"],
       name: json["name"],
-      index: json["index"],
-      isdone: json["isdone"],
-      priority: json["priority"],
-      note: json["note"],
-      createTime: parseIntoDateTime(json["createTime"]),
-      updateTime: parseIntoDateTime(json["updateTime"]),
-      subtasks: json["subtasks"].map<SubTask>((e) => SubTask.fromJson(e)).toList(),
-      deadline: deadline,
-      notifyTime: notifyTime,
-      // json["tags"] is not null always
-      tags: json["tags"].map<Tag>((e) => Tag.fromJson(e)).toList(),
+      order: json["order"],
       parentid: json["parentid"],
-
-      expectTime: json["expectTime"],
-      finishTime: json["finishTime"]
+      color: priorityMap[json["color"]]!
     );
   }
 }
 
 class SubTask {
-  int id;
-  int index;
-  String name;
-  bool isdone;
-  int parentid;
+   int id;
+   int index;
+   String name;
+   bool isdone;
+   int parentid;
 
   SubTask({
     required this.id,
@@ -186,7 +56,7 @@ class SubTask {
     required this.parentid
   });
 
-  static SubTask fromJson(Map<String, dynamic> json) {
+  factory SubTask.fromJson(Map<String, dynamic> json) {
     return SubTask(
       id: json["id"],
       index: json["index"],
@@ -197,16 +67,193 @@ class SubTask {
   }
 }
 
-class ImageItem {
-  int id;
-  String name;
+class Tag {
+   int id;
+   String name;
+   int parentid;
+   Color color;
 
-  ImageItem({required this.id, required this.name});
+  Tag({
+    required this.id,
+    required this.name,
+    required this.parentid,
+    required this.color
+  });
 
-  static ImageItem fromJson(Map<String, dynamic> json) {
-    return ImageItem(
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType is! Tag) {
+      return false;
+    }
+
+    Tag otherTag = other as Tag;
+    return id == otherTag.id;
+  }
+
+  factory Tag.fromJson(Map<String, dynamic> json) {
+    return Tag(
       id: json["id"],
-      name: json["name"]
+      name: json["name"],
+      parentid: json["parentid"],
+      color: tagColors[tagMap[json["color"]]!]!
+    );
+  }
+}
+
+class Task {
+   int id;
+   int index;
+   String name;
+   bool isdone;
+   Priority priority;
+   String? note;
+   List<SubTask> subtasks;
+   int expectTime;
+   int finishTime;
+   DateTime? deadline;
+   DateTime? notifyTime;
+   List<Tag> tags;
+   int parentid;
+   DateTime createTime;
+   DateTime updateTime;
+
+  Task({
+    required this.id,
+    required this.index,
+    required this.name,
+    required this.isdone,
+    required this.priority,
+    this.note,
+    required this.subtasks,
+    required this.expectTime,
+    required this.finishTime,
+    this.deadline,
+    this.notifyTime,
+    required this.tags,
+    required this.parentid,
+    required this.createTime,
+    required this.updateTime
+  });
+
+  void copyFrom(Task task) {
+    index = task.index;
+    name = task.name;
+    isdone = task.isdone;
+    priority = task.priority;
+    note = task.note;
+    subtasks = task.subtasks;
+    expectTime = task.expectTime;
+    finishTime = task.finishTime;
+    deadline = task.deadline;
+    notifyTime = task.notifyTime;
+    tags = task.tags;
+    parentid = task.parentid;
+    createTime = task.createTime;
+    updateTime = task.updateTime;
+  }
+
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      id: json["id"],
+      index: json["index"],
+      name: json["name"],
+      isdone: json["isdone"],
+      priority: Priority.fromJson(json["priority"]),
+      notifyTime: json["notifyTime"] == null ? null : DateTime.parse(json["notifyTime"]),
+      deadline: json["deadline"] == null ? null : DateTime.parse(json["deadline"]),
+      note: json["note"],
+      subtasks: (json["subtasks"] as List<dynamic>).map<SubTask>((e) => SubTask.fromJson(e)).toList(),
+      expectTime: json["expectTime"],
+      finishTime: json["finishTime"],
+      tags: (json["tags"] as List<dynamic>).map<Tag>((e) => Tag.fromJson(e)).toList(),
+      parentid: json["parentid"],
+      createTime: DateTime.parse(json["createTime"]),
+      updateTime: DateTime.parse(json["updateTime"])
+    );
+  }
+}
+
+class TaskGroup {
+   int id;
+   int index;
+   String name;
+   List<Task> tasks;
+   DateTime createTime;
+   DateTime updateTime;
+   int parentid;
+
+   TaskGroup({
+     required this.id,
+     required this.index,
+     required this.name,
+     required this.tasks,
+     required this.createTime,
+     required this.updateTime,
+     required this.parentid
+   });
+
+   void copyFrom(TaskGroup taskGroup) {
+     id = taskGroup.id;
+     index = taskGroup.index;
+     name = taskGroup.name;
+     tasks = taskGroup.tasks;
+     createTime = taskGroup.createTime;
+     updateTime = taskGroup.updateTime;
+     parentid = taskGroup.parentid;
+   }
+
+   factory TaskGroup.fromJson(Map<String, dynamic> json) {
+     return TaskGroup(
+         id: json["id"],
+         index: json["index"],
+         name: json["name"],
+         tasks: (json["tasks"] as List<dynamic>).map((e) => Task.fromJson(e)).toList(),
+         createTime: DateTime.parse(json["createTime"]),
+         updateTime: DateTime.parse(json["updateTime"]),
+         parentid: json["parentid"]
+     );
+   }
+}
+
+class TaskProject {
+   int id;
+   int index;
+   String name;
+   int? avatarid;
+   String? profile;
+   DateTime createTime;
+   DateTime updateTime;
+
+  TaskProject({
+    required this.id,
+    required this.index,
+    required this.name,
+    this.avatarid,
+    this.profile,
+    required this.createTime,
+    required this.updateTime
+  });
+
+  @override
+  String toString() {
+    return "$id-"
+        "$index-"
+        "$name-"
+        "$avatarid-"
+        "$profile-"
+        "${createTime.toIso8601String()}-"
+        "${updateTime.toIso8601String()}";
+  }
+
+  factory TaskProject.fromJson(Map<String, dynamic> json) {
+    return TaskProject(
+      id: json["id"],
+      index: json["index"],
+      name: json["name"],
+      avatarid: json["avatarid"],
+      profile: json["profile"],
+      createTime: DateTime.parse(json["createTime"]),
+      updateTime: DateTime.parse(json["updateTime"])
     );
   }
 }

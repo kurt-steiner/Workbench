@@ -1,6 +1,9 @@
 package com.steiner.workbench.todolist.service
 
+import com.steiner.workbench.common.`priority-default-name`
+import com.steiner.workbench.common.util.color
 import com.steiner.workbench.common.util.dbQuery
+import com.steiner.workbench.todolist.enumeration.PriorityColor
 import com.steiner.workbench.todolist.model.Priority
 import com.steiner.workbench.todolist.request.PostPriorityRequest
 import com.steiner.workbench.todolist.request.UpdatePriorityRequest
@@ -36,6 +39,7 @@ class PriorityService(val database: Database) {
                 it[name] = request.name
                 it[order] = request.order
                 it[parentid] = request.parentid
+                it[color] = request.color
             } get this.id
         }
 
@@ -50,17 +54,18 @@ class PriorityService(val database: Database) {
                         id = it[this.id].value,
                         name = it[name],
                         order = it[order],
-                        parentid = it[parentid].value
+                        parentid = it[parentid].value,
+                        color = it[color]
                     )
                 }
         }
     }
 
-    suspend fun findAll(taskid: Int): List<Priority> = dbQuery(database) {
-        with (TaskPriority) {
-            selectAll().where(this.taskid eq taskid)
+    suspend fun findAll(parentid: Int): List<Priority> = dbQuery(database) {
+        with (Priorities) {
+            selectAll().where(this.parentid eq parentid)
                 .map {
-                    it[priorityid]
+                    it[id]
                 }.map {
                     findOne(it.value)!!
                 }
@@ -78,6 +83,10 @@ class PriorityService(val database: Database) {
 
                 if (request.order != null) {
                     it[order] = request.order
+                }
+
+                if (request.color != null) {
+                    it[color] = request.color
                 }
             }
         }
@@ -104,5 +113,33 @@ class PriorityService(val database: Database) {
     suspend fun clear() = dbQuery(database) {
         Priorities.deleteAll()
         TaskPriority.deleteAll()
+    }
+
+    suspend fun findDefault(parentid: Int): Priority = dbQuery(database) {
+        with (Priorities) {
+            var priority: Priority? = selectAll().where(name eq `priority-default-name`)
+                .firstOrNull()?.let {
+                    Priority(
+                        id = it[id].value,
+                        name = it[name],
+                        order = it[order],
+                        parentid = it[this.parentid].value,
+                        color = it[color]
+                    )
+                }
+
+            if (priority == null) {
+                val id = insert {
+                    it[name] = `priority-default-name`
+                    it[order] = 2
+                    it[this.parentid] = parentid
+                    it[color] = PriorityColor.Grey
+                } get this.id
+
+                priority = findOne(id.value)!!
+            }
+
+            priority
+        }
     }
 }

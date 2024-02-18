@@ -5,12 +5,14 @@ import com.steiner.workbench.common.util.min
 import io.ktor.server.plugins.requestvalidation.*
 import kotlinx.serialization.Serializable
 import com.steiner.workbench.common.`priority-name-length`
+import com.steiner.workbench.todolist.enumeration.PriorityColor
 
 @Serializable
 class PostPriorityRequest(
     val name: String,
     val order: Int,
-    val parentid: Int
+    val parentid: Int,
+    val color: PriorityColor
 ) {
     fun validate(): ValidationResult {
         return listOf(

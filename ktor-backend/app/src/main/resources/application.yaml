@@ -6,6 +6,6 @@ ktor:
         port: 8080
 
 app:
-  initialize: true
+  initialize: false
   storage:
-      image-url: "/home/steiner/workspace/workench/storage/images"
+      image-url: "/home/steiner/workspace/workbench/storage/images/"

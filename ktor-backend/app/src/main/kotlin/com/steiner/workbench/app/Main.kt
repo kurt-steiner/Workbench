@@ -9,11 +9,11 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureWebSocket()
     configureHTTP()
     configureKoin()
     configureInitialize()
     configureSerialization()
-    configureSecurity()
     configureErrorHandler()
     configureValidation()
 

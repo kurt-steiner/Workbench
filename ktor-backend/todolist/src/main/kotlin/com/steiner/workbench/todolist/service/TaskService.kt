@@ -5,6 +5,7 @@ import com.steiner.workbench.common.util.now
 import com.steiner.workbench.todolist.model.Task
 import com.steiner.workbench.todolist.request.PostTaskRequest
 import com.steiner.workbench.todolist.request.PostTaskTagRequest
+import com.steiner.workbench.todolist.request.ReorderRequest
 import com.steiner.workbench.todolist.request.UpdateTaskRequest
 import com.steiner.workbench.todolist.table.*
 import com.steiner.workbench.todolist.util.mustExistIn
@@ -12,13 +13,21 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class TaskService(val database: Database, val taskGroupService: TaskGroupService, val taskProjectService: TaskProjectService, val tagService: TagService, val subtaskService: SubTaskService) {
+class TaskService(val database: Database): KoinComponent {
     init {
         transaction(database) {
             SchemaUtils.create(Tasks)
         }
     }
+
+    val taskGroupService: TaskGroupService by inject<TaskGroupService>()
+    val taskProjectService: TaskProjectService by inject<TaskProjectService>()
+    val tagService: TagService by inject<TagService>()
+    val subTaskService: SubTaskService by inject<SubTaskService>()
+    val priorityService: PriorityService by inject<PriorityService>()
 
     suspend fun insertOne(request: PostTaskRequest): Task = dbQuery(database) {
         mustExistIn(request.parentid, TaskGroups)
@@ -32,6 +41,9 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
         }
 
         val nowLocalDateTime = now()
+        val taskGroup = taskGroupService.findOne(request.parentid)!!
+        val taskProject = taskProjectService.findOne(taskGroup.parentid)!!
+        val priority = request.priority ?: priorityService.findDefault(taskProject.id)
         val id = with (Tasks) {
             insert {
                 it[name] = request.name
@@ -45,7 +57,7 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
                 it[createTime] = nowLocalDateTime
                 it[updateTime] = nowLocalDateTime
 
-                it[priority] = request.priority
+                it[this.priority] = priority
                 it[expectTime] = request.expectTime
                 it[finishTime] = 0
 
@@ -140,7 +152,7 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
     suspend fun removeTag(taskid: Int, tagid: Int) = dbQuery(database) {
         with (TaskTag) {
             deleteWhere {
-                (this.tagid eq tagid) and (this.taskid eq tagid)
+                (this.tagid eq tagid) and (this.taskid eq taskid)
             }
         }
     }
@@ -161,6 +173,13 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
         }
     }
 
+    suspend fun removeNote(id: Int) = dbQuery(database) {
+        with (Tasks) {
+            update({ this@with.id eq id}) {
+                it[note] = null
+            }
+        }
+    }
     suspend fun updateTask(request: UpdateTaskRequest): Task = dbQuery(database) {
         mustExistIn(request.id, Tasks)
         mustExistIn(request.parentid, TaskGroups)
@@ -180,7 +199,7 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
                 }
 
                 if (request.deadline != null) {
-                    it[deadline] = deadline
+                    it[deadline] = request.deadline
                 }
 
                 if (request.notifyTime != null) {
@@ -210,6 +229,80 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
         findOne(request.id)!!
     }
 
+    suspend fun reorder(request: ReorderRequest) = dbQuery(database) {
+        mustExistIn(request.id, Tasks)
+        if (request.parentid != null) {
+            mustExistIn(request.parentid, TaskGroups)
+        }
+
+        val task = findOne(request.id)!!
+
+        with (Tasks) {
+            if (request.parentid != null && task.parentid != request.parentid) {
+                update({
+                    (parentid eq task.parentid) and
+                            (index greater task.index)
+                }) {
+                    with (SqlExpressionBuilder) {
+                        it.update(index, index - 1)
+                    }
+                }
+
+                update({
+                    (parentid eq request.parentid) and
+                            (index greaterEq request.reorderAfter + 1)
+                }) {
+                    with (SqlExpressionBuilder) {
+                        it.update(index, index + 1)
+                    }
+                }
+
+            } else {
+                if (task.index < request.reorderAfter) {
+                    update({
+                        (parentid eq task.parentid) and
+                                (index lessEq request.reorderAfter) and
+                                (index greater task.index)
+                    }) {
+                        with (SqlExpressionBuilder) {
+                            it.update(index, index - 1)
+                        }
+                    }
+
+                } else if (task.index > request.reorderAfter) {
+                    update({
+                        (parentid eq task.parentid) and
+                                (index greaterEq request.reorderAfter) and
+                                (index less task.index)
+                    }) {
+                        with (SqlExpressionBuilder) {
+                            it.update(index, index + 1)
+                        }
+                    }
+
+                } else {
+                    return@with
+                }
+            }
+
+            update({id eq request.id}) {
+                if (request.parentid == task.parentid) {
+                    it[index] = request.reorderAfter
+                } else {
+                    it[index] = request.reorderAfter + 1
+                }
+
+                it[updateTime] = now()
+
+                if (request.parentid != null) {
+                    it[parentid] = request.parentid
+                }
+            }
+        }
+
+
+    }
+
     suspend fun findOne(id: Int): Task? = dbQuery(database) {
         with (Tasks) {
             selectAll().where(this.id eq id)
@@ -221,7 +314,7 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
                         name = it[name],
                         isdone = it[isdone],
                         priority = it[priority],
-                        subtasks = subtaskService.findAll(id),
+                        subtasks = subTaskService.findAll(id),
                         createTime = it[createTime],
                         updateTime = it[updateTime],
                         expectTime = it[expectTime],
@@ -241,6 +334,7 @@ class TaskService(val database: Database, val taskGroupService: TaskGroupService
 
         with (Tasks) {
             selectAll().where(this.parentid eq parentid)
+                .orderBy(index)
                 .map {
                     findOne(it[id].value)!!
                 }

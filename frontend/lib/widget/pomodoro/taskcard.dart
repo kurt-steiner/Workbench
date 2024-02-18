@@ -1,89 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
+import 'package:frontend/mixins.dart';
 import 'package:frontend/model/todolist.dart';
-import 'package:frontend/state/todolist-state.dart';
+import 'package:frontend/state/todolist.dart';
 import 'package:provider/provider.dart';
 
-class TaskCard extends StatelessWidget {
-  Task task;
-  int taskgroupIndex;
-  bool isselected;
-  late void Function(void Function()) setStateColor;
+class TaskCard extends StatelessWidget with StateMixin {
+  final Task task;
+  TaskCard({required this.task});
 
-  late TodoListState state;
-
-  TaskCard({required this.task, required this.isselected, required this.taskgroupIndex});
+  bool get isSelected => todoListState.currentTask?.id == task.id;
 
   @override
   Widget build(BuildContext context) {
-    state = context.read<TodoListState>();
+    todoListState = context.read<TodoListState>();
 
-    final child0 = StatefulBuilder(builder: (context, setState) {
-      setStateColor = setState;
+    return Selector<TodoListState, String>(
+      selector: (_, state) => "$isSelected-${task.isdone}-${task.finishTime}-${task.expectTime}",
+      builder: (_, value, child) => ListTile(
+        onTap: () {
+          todoListState.setCurrentTask(task);
+        },
 
-      final text = Text(
-        task.name,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: task.isdone ? Colors.grey : Colors.black,
-          decoration: task.isdone ? TextDecoration.lineThrough : null
-        ),
-      );
-
-      final row = Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          text,
-          Text("${task.finishTime}/${task.expectTime}", style: settings["widget.pomodoro.taskcard.count.text-style"],)
-        ],
-      );
-
-       return Container(
-         width: settings["widget.pomodoro.counter.width.desktop"],
-         padding: settings["widget.pomodoro.taskcard.padding"],
-         margin: settings["widget.pomodoro.taskcard.margin"],
-         color: Colors.white,
-         child: row,
-      );
-
-
-    });
-
-    late Widget child1;
-
-    if (isselected) {
-      child1 = Stack(
-        children: [
-          child0,
-          Positioned(
-            left: 0,
-            // top: settings["widget.pomodoro.taskcard.padding.top"],
-            // bottom: 0,
-            top: 0,
-            bottom: settings["widget.pomodoro.taskcard.padding.bottom"],
-            child: Container(
-              color: Colors.black,
-              width: settings["widget.pomodoro.taskcard.selected.width"],
-            ),
-          )
-        ],
-      );
-    } else {
-      child1 = child0;
-    }
-
-
-    return GestureDetector(
-      onTap: () {
-        state.setCounterTask(task);
-      },
-
-      child: Align(
-        alignment: Alignment.center,
-        child: child1,
-      )
+        leading: task.isdone ? const Icon(Icons.check_box_outlined) : const Icon(Icons.check_box_outline_blank),
+        title: Text(task.name),
+        trailing: Text("${task.finishTime}/${task.expectTime}"),
+        tileColor: isSelected ? Colors.blue[50] : null,
+      ),
     );
   }
 

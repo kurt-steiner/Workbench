@@ -3,7 +3,7 @@ package com.steiner.workbench.common.util
 import io.ktor.server.plugins.requestvalidation.*
 import com.steiner.workbench.common.`common-string-length-min`
 import com.steiner.workbench.common.emailRegex
-import com.steiner.workbench.common.hexColorRegex
+import com.steiner.workbench.common.rgbHexColorPattern
 
 fun length(data: String?, min: Int = `common-string-length-min`, max: Int = Int.MAX_VALUE, message: String? = null): ValidationResult {
     if (data == null) {
@@ -84,7 +84,7 @@ fun color(data: String?, message: String? = null): ValidationResult {
 
     val message1 = message ?: "color pattern not correct"
 
-    return if (hexColorRegex.matches(data)) {
+    return if (rgbHexColorPattern.matches(data)) {
         ValidationResult.Valid
     } else {
         ValidationResult.Invalid(message1)

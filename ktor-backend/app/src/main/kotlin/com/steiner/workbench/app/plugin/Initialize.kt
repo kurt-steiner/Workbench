@@ -1,22 +1,18 @@
 package com.steiner.workbench.app.plugin
 
-import com.steiner.workbench.login.request.PostAdminRequest
-import com.steiner.workbench.login.request.PostRoleRequest
-import com.steiner.workbench.login.request.PostUserRequest
-import com.steiner.workbench.login.service.RoleService
-import com.steiner.workbench.login.service.UserService
+import com.steiner.workbench.todolist.enumeration.PriorityColor
+import com.steiner.workbench.todolist.request.PostPriorityRequest
+import com.steiner.workbench.todolist.request.PostTaskGroupRequest
+import com.steiner.workbench.todolist.request.PostTaskProjectRequest
+import com.steiner.workbench.todolist.request.PostTaskRequest
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
-import com.steiner.workbench.common.`role-admin`
-import com.steiner.workbench.common.`role-default`
 import com.steiner.workbench.todolist.service.*
 import org.koin.ktor.ext.inject
 
 fun Application.configureInitialize() {
     val config = environment.config
     val isInitialize = config.property("app.initialize").getString().toBoolean()
-    val userService: UserService by inject<UserService>()
-    val roleService: RoleService by inject<RoleService>()
     val priorityService: PriorityService by inject<PriorityService>()
     val tagService: TagService by inject<TagService>()
     val taskProjectService: TaskProjectService by inject<TaskProjectService>()
@@ -28,38 +24,88 @@ fun Application.configureInitialize() {
     }
 
     runBlocking {
-        userService.clear()
-        roleService.clear()
         priorityService.clear()
         tagService.clear()
         taskProjectService.clear()
         taskGroupService.clear()
         taskService.clear()
 
-        arrayOf(
-            PostRoleRequest(`role-admin`),
-            PostRoleRequest(`role-default`)
-        ).forEach {
-            roleService.insertOne(it)
+        val taskProjectRequest = PostTaskProjectRequest(
+            name = "hello",
+            avatarid = null,
+            profile = null
+        )
+
+        val taskProject = taskProjectService.insertOne(taskProjectRequest)
+
+        val priorityRequest = PostPriorityRequest(
+            name = "普通",
+            parentid = taskProject.id,
+            order = 2,
+            color = PriorityColor.Blue
+        )
+
+        val priority = priorityService.insertOne(priorityRequest)
+
+        val taskGroupRequests = listOf(
+            PostTaskGroupRequest(
+                parentid = taskProject.id,
+                name = "taskgroup1",
+            ),
+
+            PostTaskGroupRequest(
+                parentid = taskProject.id,
+                name = "taskgroup2",
+            ),
+        )
+
+        taskGroupRequests.forEach { request ->
+            val taskGroup = taskGroupService.insertOne(request)
+
+            listOf(
+                PostTaskRequest(
+                    name = "task1",
+                    parentid = taskGroup.id,
+                    deadline = null,
+                    expectTime = 4,
+                    note = null,
+                    notifyTime = null,
+                    priority = priority
+                ),
+
+                PostTaskRequest(
+                    name = "task2",
+                    parentid = taskGroup.id,
+                    deadline = null,
+                    expectTime = 4,
+                    note = null,
+                    notifyTime = null,
+                    priority = priority
+                ),
+
+                PostTaskRequest(
+                    name = "task3",
+                    parentid = taskGroup.id,
+                    deadline = null,
+                    expectTime = 4,
+                    note = null,
+                    notifyTime = null,
+                    priority = priority
+                ),
+
+                PostTaskRequest(
+                    name = "task4",
+                    parentid = taskGroup.id,
+                    deadline = null,
+                    expectTime = 4,
+                    note = null,
+                    notifyTime = null,
+                    priority = priority
+                )
+            ).reversed().forEach {
+                taskService.insertOne(it)
+            }
         }
 
-        arrayOf(
-            PostUserRequest(
-                username = "steiner",
-                email = "steiner3044@163.com",
-                enabled = true,
-                passwordHash = "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
-                passwordLength = 8
-            )
-        ).forEach {
-            userService.insertOne(it)
-        }
-
-        userService.insertAdmin(PostAdminRequest(
-            username = "admin",
-            email = "steiner3044@163.com",
-            enabled = true,
-            passwordHash = "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"
-        ))
     }
 }

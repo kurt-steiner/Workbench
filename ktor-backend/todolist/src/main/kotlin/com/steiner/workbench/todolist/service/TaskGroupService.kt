@@ -4,6 +4,7 @@ import com.steiner.workbench.common.util.dbQuery
 import com.steiner.workbench.common.util.now
 import com.steiner.workbench.todolist.model.TaskGroup
 import com.steiner.workbench.todolist.request.PostTaskGroupRequest
+import com.steiner.workbench.todolist.request.ReorderRequest
 import com.steiner.workbench.todolist.request.UpdateTaskGroupRequest
 import com.steiner.workbench.todolist.table.TaskGroups
 import com.steiner.workbench.todolist.table.TaskProjects
@@ -12,28 +13,28 @@ import com.steiner.workbench.todolist.util.mustExistIn
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class TaskGroupService(val database: Database, val taskService: TaskService) {
+class TaskGroupService(val database: Database): KoinComponent {
     init {
         transaction(database) {
             SchemaUtils.create(TaskGroups)
         }
     }
 
+    val taskService: TaskService by inject<TaskService>()
+
     suspend fun insertOne(request: PostTaskGroupRequest): TaskGroup = dbQuery(database) {
         mustExistIn(request.parentid, TaskProjects)
         with (TaskGroups) {
-            update({ (parentid eq request.parentid) and (index greater (request.after ?: -1))}) {
-                with (SqlExpressionBuilder) {
-                    it.update(index, index + 1)
-                }
-            }
-
             val nowLocalDateTime = now()
+            val count = selectAll().count().toInt()
             val id = insert {
                 it[parentid] = request.parentid
-                it[index] = (request.after ?: -1) + 1
+                it[index] = count
                 it[name] = request.name
                 it[createTime] = nowLocalDateTime
                 it[updateTime] = nowLocalDateTime
@@ -103,9 +104,46 @@ class TaskGroupService(val database: Database, val taskService: TaskService) {
         findOne(request.id)!!
     }
 
+    suspend fun reorder(request: ReorderRequest) = dbQuery(database) {
+        mustExistIn(request.id, TaskGroups)
+
+        val taskGroup = findOne(request.id)!!
+        if (taskGroup.index < request.reorderAfter) {
+            with (TaskGroups) {
+                update({
+                    (parentid eq taskGroup.parentid) and
+                            (index lessEq request.reorderAfter) and
+                            (index greater taskGroup.index)}) {
+                    with (SqlExpressionBuilder) {
+                        it.update(index, index - 1)
+                    }
+                }
+            }
+        } else if (taskGroup.index > request.reorderAfter) {
+            with (TaskGroups) {
+                update({
+                    (parentid eq taskGroup.parentid) and
+                            (index greaterEq request.reorderAfter) and
+                            (index less taskGroup.index)
+                }) {
+                    it.update(index, index + 1)
+                }
+            }
+        } else {
+            // nothing to do
+        }
+
+        with (TaskGroups) {
+            update({id eq request.id}) {
+                it[updateTime] = now()
+                it[index] = request.reorderAfter
+            }
+        }
+    }
+
     suspend fun findOne(id: Int): TaskGroup? = dbQuery(database) {
         with (TaskGroups) {
-            select(this.id eq id)
+            selectAll().where(this.id eq id)
                 .firstOrNull()
                 ?.let {
                     val tasks = taskService.findAll(id)

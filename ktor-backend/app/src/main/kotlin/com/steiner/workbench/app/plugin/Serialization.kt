@@ -7,6 +7,9 @@ import kotlinx.serialization.json.Json
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        json(Json { ignoreUnknownKeys = true })
+        json(Json {
+            ignoreUnknownKeys = true
+            classDiscriminator = "type"
+        })
     }
 }

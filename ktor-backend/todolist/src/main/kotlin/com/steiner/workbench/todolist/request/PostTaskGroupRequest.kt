@@ -10,12 +10,10 @@ import com.steiner.workbench.common.util.min
 class PostTaskGroupRequest(
     val parentid: Int,
     val name: String,
-    val after: Int?
 ) {
     fun validate(): ValidationResult {
         return listOf(
             length(data = name, max = `task-group-name-length`),
-            min(data = after, value = 0),
             min(data = parentid, value = 1)
         ).firstOrNull {
             it is ValidationResult.Invalid

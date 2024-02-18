@@ -25,5 +25,5 @@ object Tasks: IntIdTable("todolist-tasks") {
     val expectTime = integer("expect-time")
     val finishTime = integer("finish-time")
     val deadline = datetime("deadline").nullable()
-    val notifyTime = datetime("notifyTime").nullable()
+    val notifyTime = datetime("notify-time").nullable()
 }

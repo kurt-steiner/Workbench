@@ -1,28 +1,143 @@
-import 'package:flutter/material.dart';
+import 'package:frontend/model/enumeration.dart';
 import 'package:frontend/model/todolist.dart';
-import 'package:frontend/utils.dart';
+
+class PostPriorityRequest {
+  String name;
+  int order;
+  int parentid;
+  PriorityColor color;
+
+  PostPriorityRequest({
+    required this.name,
+    required this.order,
+    required this.parentid,
+    required this.color
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "order": order,
+      "parentid": parentid,
+      "color": color.toEnumString()
+    };
+  }
+}
+
+class PostSubTaskRequest {
+   int parentid;
+   String name;
+
+  PostSubTaskRequest({
+    required this.parentid,
+    required this.name
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "parentid": parentid,
+      "name": name
+    };
+  }
+}
 
 class PostTagRequest {
-  String name;
-  int parentid;
-  Color color;
+   String name;
+   int parentid;
+   TagColor color;
 
-  PostTagRequest({required this.name, required this.parentid, required this.color});
+  PostTagRequest({
+    required this.name,
+    required this.parentid,
+    required this.color
+  });
 
   Map<String, dynamic> toJson() {
     return {
       "name": name,
       "parentid": parentid,
-      "color": color.toHex()
+      "color": color.toEnumString()
+    };
+  }
+}
+
+class PostTaskGroupRequest {
+   int parentid;
+   String name;
+
+  PostTaskGroupRequest({
+    required this.parentid,
+    required this.name,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "parentid": parentid,
+      "name": name,
+    };
+  }
+}
+
+class PostTaskProjectRequest {
+   String name;
+   int? avatarid;
+   String? profile;
+
+  PostTaskProjectRequest({
+    required this.name,
+    this.avatarid,
+    this.profile
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "avatarid": avatarid,
+      "profile": profile
+    };
+  }
+}
+
+class PostTaskRequest {
+   String name;
+   int parentid;
+   String? note;
+   Priority? priority;
+   DateTime? deadline;
+   DateTime? notifyTime;
+   int expectTime;
+
+  PostTaskRequest({
+    required this.name,
+    required this.parentid,
+    this.note,
+    this.priority,
+    this.deadline,
+    this.notifyTime,
+    required this.expectTime
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "parentid": parentid,
+      "note": note,
+      "priority": priority?.toJson(),
+      "deadline": deadline?.toIso8601String(),
+      "notifyTime": notifyTime?.toIso8601String(),
+      "expectTime": expectTime
     };
   }
 }
 
 class PostTaskTagRequest {
-  int taskid;
-  int tagid;
+   int taskid;
+   int tagid;
 
-  PostTaskTagRequest({required this.taskid, required this.tagid});
+  PostTaskTagRequest({
+    required this.taskid,
+    required this.tagid
+  });
 
   Map<String, dynamic> toJson() {
     return {
@@ -32,110 +147,74 @@ class PostTaskTagRequest {
   }
 }
 
-class PostSubTaskRequest {
-  int parentid;
-  String name;
+class ReorderRequest {
+   int id;
+   int reorderAfter;
+   int? parentid;
 
-  PostSubTaskRequest({required this.parentid, required this.name});
-
-  Map<String, dynamic> toJson() {
-    return {
-      "parentid": parentid,
-      "name": name
-    };
-  }
-}
-
-class PostTaskGroupRequest {
-  int parentid;
-  String name;
-
-  PostTaskGroupRequest({required this.parentid, required this.name});
-
-  Map<String, dynamic> toJson() {
-    return {
-      "parentid": parentid,
-      "name": name
-    };
-  }
-}
-
-class PostTaskProjectRequest {
-  int userid;
-  String name;
-  int? avatarid;
-  String? profile;
-
-  PostTaskProjectRequest({required this.userid, required this.name, this.avatarid, this.profile});
-
-  Map<String, dynamic> toJson() {
-    return {
-      "userid": userid,
-      "name": name,
-      "avatarid": avatarid,
-      "profile": profile
-    };
-  }
-}
-
-class PostTaskRequest {
-  String name;
-  int parentid;
-  String? note;
-  int priority;
-  List<Tag>? tags;
-  String? deadline;
-  String? notifyTime;
-  int expectTime;
-
-  PostTaskRequest({
-    required this.name,
-    required this.parentid,
-    required this.priority,
-    required this.expectTime,
-    this.note,
-    this.tags,
-    this.deadline,
-    this.notifyTime
+  ReorderRequest({
+    required this.id,
+    required this.reorderAfter,
+    this.parentid
   });
 
   Map<String, dynamic> toJson() {
     return {
-      "name": name,
-      "parentid": parentid,
-      "note": note,
-      "priority": priority,
-      "tags": tags?.map((e) => {"id": e.id, "name": e.name}).toList(),
-      "deadline": deadline,
-      "notifyTime": notifyTime,
-      "expectTime": expectTime
+      "id": id,
+      "reorderAfter": reorderAfter,
+      "parentid": parentid
     };
   }
 }
 
-class UpdateSubTaskRequest {
-  int id;
-  String? name;
-  bool? isdone;
-  int? reorderAt;
+class UpdatePriorityRequest {
+   int id;
+   String? name;
+   int? order;
 
-  UpdateSubTaskRequest({required this.id, this.name, this.isdone, this.reorderAt});
+  UpdatePriorityRequest({
+    required this.id,
+    this.name,
+    this.order
+  });
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
       "name": name,
-      "reorderAt": reorderAt,
+      "order": order
+    };
+  }
+}
+
+class UpdateSubTaskRequest {
+   int id;
+   String? name;
+   bool? isdone;
+
+  UpdateSubTaskRequest({
+    required this.id,
+    this.name,
+    this.isdone
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "name": name,
       "isdone": isdone
     };
   }
 }
 
 class UpdateTagRequest {
-  int id;
-  String name;
+   int id;
+   String name;
 
-  UpdateTagRequest({required this.id, required this.name});
+  UpdateTagRequest({
+    required this.id,
+    required this.name
+  });
 
   Map<String, dynamic> toJson() {
     return {
@@ -146,28 +225,34 @@ class UpdateTagRequest {
 }
 
 class UpdateTaskGroupRequest {
-  int id;
-  String? name;
-  int? reorderAt;
+   int id;
+   String name;
 
-  UpdateTaskGroupRequest({required this.id, this.name, this.reorderAt});
+  UpdateTaskGroupRequest({
+    required this.id,
+    required this.name
+  });
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "name": name,
-      "reorderAt": reorderAt
+      "name": name
     };
   }
 }
 
 class UpdateTaskProjectRequest {
-  int id;
-  String? name;
-  int? avatarid;
-  String? profile;
+   int id;
+   String? name;
+   int? avatarid;
+   String? profile;
 
-  UpdateTaskProjectRequest({required this.id, this.name, this.avatarid, this.profile});
+  UpdateTaskProjectRequest({
+    required this.id,
+    required this.name,
+    required this.avatarid,
+    required this.profile
+  });
 
   Map<String, dynamic> toJson() {
     return {
@@ -180,22 +265,20 @@ class UpdateTaskProjectRequest {
 }
 
 class UpdateTaskRequest {
-  int id;
-  String? name;
-  int? reorderAt;
-  bool? isdone;
-  String? deadline;
-  String? notifyTime;
-  String? note;
-  int? priority;
-  int? expectTime;
-  int? finishTime;
-  int? parentid;
+   int id;
+   String? name;
+   bool? isdone;
+   DateTime? deadline;
+   DateTime? notifyTime;
+   String? note;
+   Priority? priority;
+   int? expectTime;
+   int? finishTime;
+   int? parentid;
 
   UpdateTaskRequest({
     required this.id,
     this.name,
-    this.reorderAt,
     this.isdone,
     this.deadline,
     this.notifyTime,
@@ -210,12 +293,11 @@ class UpdateTaskRequest {
     return {
       "id": id,
       "name": name,
-      "reorderAt": reorderAt,
       "isdone": isdone,
-      "deadline": deadline,
-      "notifyTime": notifyTime,
+      "deadline": deadline?.toIso8601String(),
+      "notifyTime": notifyTime?.toIso8601String(),
       "note": note,
-      "priority": priority,
+      "priority": priority?.toJson(),
       "expectTime": expectTime,
       "finishTime": finishTime,
       "parentid": parentid

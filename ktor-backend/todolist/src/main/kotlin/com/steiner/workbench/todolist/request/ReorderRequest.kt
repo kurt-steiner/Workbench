@@ -6,13 +6,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class ReorderRequest(
-    val currentIndex: Int,
-    val reorderAfter: Int
+    val id: Int,
+    val reorderAfter: Int,
+    val parentid: Int?
 ) {
     fun validate(): ValidationResult {
         return listOf(
-            min(data = currentIndex, value = 0),
-            min(data = reorderAfter, value = 0)
+            min(data = id, value = 1),
+            min(data = reorderAfter, value = 0),
+            min(data = parentid, value = 1)
         ).firstOrNull {
             it is ValidationResult.Invalid
         } ?: ValidationResult.Valid

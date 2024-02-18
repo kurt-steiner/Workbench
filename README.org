@@ -85,3 +85,8 @@ Openjdk-17
 ** Sidebar navigator
 1. use controller
 ** GoRouter
+
+* new Feature
+- [ ] drop login
+- [ ] drop register
+- [ ] drop jwt token

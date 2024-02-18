@@ -2,7 +2,6 @@ package com.steiner.workbench.todolist.service
 
 import com.steiner.workbench.common.util.dbQuery
 import com.steiner.workbench.common.util.now
-import com.steiner.workbench.login.table.Users
 import com.steiner.workbench.todolist.model.TaskProject
 import com.steiner.workbench.todolist.request.PostTaskProjectRequest
 import com.steiner.workbench.todolist.request.UpdateTaskProjectRequest
@@ -22,8 +21,6 @@ class TaskProjectService(val database: Database, val taskGroupService: TaskGroup
     }
 
     suspend fun insertOne(request: PostTaskProjectRequest): TaskProject = dbQuery(database) {
-        mustExistIn(request.userid, Users)
-
         val exist = with (TaskProjects) {
             selectAll().where(name eq request.name)
                 .firstOrNull() != null
@@ -34,7 +31,7 @@ class TaskProjectService(val database: Database, val taskGroupService: TaskGroup
         }
 
         with (TaskProjects) {
-            update({ userid eq request.userid }) {
+            update {
                 with (SqlExpressionBuilder) {
                     it.update(index, index + 1)
                 }
@@ -47,7 +44,6 @@ class TaskProjectService(val database: Database, val taskGroupService: TaskGroup
                 it[name] = request.name
                 it[index] = 0
                 it[avatarid] = request.avatarid
-                it[userid] = request.userid
                 it[createTime] = nowLocalDateTime
                 it[updateTime] = nowLocalDateTime
 
@@ -72,9 +68,9 @@ class TaskProjectService(val database: Database, val taskGroupService: TaskGroup
     }
 
 
-    suspend fun deleteAll(userid: Int) = dbQuery(database) {
+    suspend fun deleteAll() = dbQuery(database) {
         val projectids = with (TaskProjects) {
-            selectAll().where(this.userid eq userid)
+            selectAll()
                 .map {
                     it[id]
                 }
@@ -127,7 +123,6 @@ class TaskProjectService(val database: Database, val taskGroupService: TaskGroup
                         index = it[index],
                         avatarid = it[avatarid]?.value,
                         profile = it[profile],
-                        userid = it[userid].value,
                         createTime = it[createTime],
                         updateTime = it[updateTime]
                     )
@@ -135,9 +130,9 @@ class TaskProjectService(val database: Database, val taskGroupService: TaskGroup
         }
     }
 
-    suspend fun findAll(userid: Int): List<TaskProject> = dbQuery(database) {
+    suspend fun findAll(): List<TaskProject> = dbQuery(database) {
         with (TaskProjects) {
-            selectAll().where(this.userid eq userid)
+            selectAll()
                 .orderBy(index)
                 .map {
                     val id = it[id].value
