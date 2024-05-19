@@ -1,4 +1,4 @@
-package com.steiner.workbench.todolist.util
+package com.steiner.workbench.common.util
 
 import io.ktor.server.plugins.*
 import org.jetbrains.exposed.dao.id.IntIdTable

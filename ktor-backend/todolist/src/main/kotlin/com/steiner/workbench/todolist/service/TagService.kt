@@ -5,10 +5,9 @@ import com.steiner.workbench.todolist.model.Tag
 import com.steiner.workbench.todolist.request.PostTagRequest
 import com.steiner.workbench.todolist.request.UpdateTagRequest
 import com.steiner.workbench.todolist.table.Tags
-import com.steiner.workbench.todolist.table.Tags.select
 import com.steiner.workbench.todolist.table.TaskProjects
 import com.steiner.workbench.todolist.table.TaskTag
-import com.steiner.workbench.todolist.util.mustExistIn
+import com.steiner.workbench.common.util.mustExistIn
 import io.ktor.server.plugins.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

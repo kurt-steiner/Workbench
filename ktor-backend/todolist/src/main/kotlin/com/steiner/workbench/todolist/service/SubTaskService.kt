@@ -3,12 +3,14 @@ package com.steiner.workbench.todolist.service
 import com.steiner.workbench.common.util.dbQuery
 import com.steiner.workbench.todolist.model.SubTask
 import com.steiner.workbench.todolist.request.PostSubTaskRequest
+import com.steiner.workbench.todolist.request.ReorderRequest
 import com.steiner.workbench.todolist.request.UpdateSubTaskRequest
 import com.steiner.workbench.todolist.table.SubTasks
 import com.steiner.workbench.todolist.table.Tasks
-import com.steiner.workbench.todolist.util.mustExistIn
+import com.steiner.workbench.common.util.mustExistIn
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class SubTaskService(val database: Database) {
@@ -66,6 +68,43 @@ class SubTaskService(val database: Database) {
         }
 
         findOne(request.id)!!
+    }
+
+    suspend fun reorder(request: ReorderRequest) = dbQuery(database) {
+        mustExistIn(request.id, SubTasks)
+        val subTask = findOne(request.id)!!
+
+        if (subTask.index < request.reorderAfter) {
+            with (SubTasks) {
+                update({
+                    (parentid eq subTask.parentid) and
+                            (index lessEq request.reorderAfter) and
+                            (index greater subTask.index)
+                }) {
+                    with (SqlExpressionBuilder) {
+                        it.update(index, index - 1)
+                    }
+                }
+            }
+        } else if (subTask.index > request.reorderAfter) {
+            with (SubTasks) {
+                update({
+                    (parentid eq subTask.parentid) and
+                            (index greaterEq request.reorderAfter) and
+                            (index less subTask.index)
+                }) {
+                    it.update(index, index + 1)
+                }
+            }
+        } else {
+            // nothing to do
+        }
+
+        with (SubTasks) {
+            update({id eq request.id}) {
+                it[index] = request.reorderAfter
+            }
+        }
     }
 
     suspend fun findOne(id: Int): SubTask? = dbQuery(database) {

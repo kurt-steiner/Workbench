@@ -6,7 +6,7 @@ import 'package:path/path.dart' show join;
 class TodoListApi {
   final String baseUrl;
   late Dio instance;
-  String uid;
+  final String uid;
   String get url => join(baseUrl, "todolist");
 
   Map<String, String> get headers => {

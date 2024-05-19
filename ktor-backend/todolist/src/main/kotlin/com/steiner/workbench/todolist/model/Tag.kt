@@ -1,6 +1,6 @@
 package com.steiner.workbench.todolist.model
 
-import com.steiner.workbench.todolist.enumeration.TagColor
+import com.steiner.workbench.common.util.FlatUIColor
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,5 +8,5 @@ class Tag(
     val id: Int,
     val name: String,
     val parentid: Int,
-    val color: TagColor
+    val color: FlatUIColor
 )

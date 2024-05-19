@@ -1,9 +1,11 @@
 package com.steiner.workbench.app.plugin
 
+import com.steiner.workbench.clipboard.routingClipboard
 import com.steiner.workbench.common.model.ImageItem
 import com.steiner.workbench.common.service.ImageItemService
 import com.steiner.workbench.common.util.Response
 import com.steiner.workbench.common.util.urljoin
+import com.steiner.workbench.daily_attendance.routingDailyAttendance
 import com.steiner.workbench.todolist.routingTodolist
 import com.steiner.workbench.websocket.routingWebSocket
 import io.ktor.http.*
@@ -80,4 +82,6 @@ fun Application.configureRouting() {
 
     routingTodolist()
     routingWebSocket()
+    routingDailyAttendance()
+    routingClipboard()
 }

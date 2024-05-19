@@ -13,6 +13,7 @@ fun Application.configureErrorHandler() {
     install(StatusPages) {
         /// this is for debugging in the frontend
         exception<BadRequestException> { call, cause ->
+            logger.error(cause.stackTraceToString())
             call.respond(HttpStatusCode.BadRequest, Response.Err("bad request! ${cause.message}"))
         }
 

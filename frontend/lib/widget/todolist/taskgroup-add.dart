@@ -19,7 +19,7 @@ class _TaskGroupAddState extends State<TaskGroupAdd> with StateMixin{
     todoListState = context.read<TodoListState>();
     
     return SizedBox(
-      width: settings["widget.taskgroup.width"],
+      width: todoListSettings["widget.taskgroup.width"],
       child: expanded ? buildExpand(context) : buildEntry(context)
     );
   }

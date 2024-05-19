@@ -95,7 +95,7 @@ class Tag {
       id: json["id"],
       name: json["name"],
       parentid: json["parentid"],
-      color: tagColors[tagMap[json["color"]]!]!
+      color: flatUIColors[flatUIMap[json["color"]]!]!
     );
   }
 }

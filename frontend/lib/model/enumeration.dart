@@ -42,7 +42,7 @@ final Map<PriorityColor, Color> priorityColors = {
   PriorityColor.Grey: Colors.grey
 };
 
-enum TagColor {
+enum FlatUIColor {
   GoldenSand,
   Coral,
   WildWatermelon,
@@ -61,80 +61,80 @@ enum TagColor {
   BrightGreek
 }
 
-extension ToStringTagColor on TagColor {
+extension ToStringTagColor on FlatUIColor {
   String toEnumString() {
     switch (this) {
-      case TagColor.GoldenSand:
+      case FlatUIColor.GoldenSand:
         return "GoldenSand";
-      case TagColor.Coral:
+      case FlatUIColor.Coral:
         return "Coral";
-      case TagColor.WildWatermelon:
+      case FlatUIColor.WildWatermelon:
         return "WildWatermelon";
-      case TagColor.Peace:
+      case FlatUIColor.Peace:
         return "Peace";
-      case TagColor.Grisaille:
+      case FlatUIColor.Grisaille:
         return "Grisaille";
-      case TagColor.Orange:
+      case FlatUIColor.Orange:
         return "Orange";
-      case TagColor.BruschettaTomato:
+      case FlatUIColor.BruschettaTomato:
         return "BruschettaTomato";
-      case TagColor.Watermelon:
+      case FlatUIColor.Watermelon:
         return "Watermelon";
-      case TagColor.BayWharf:
+      case FlatUIColor.BayWharf:
         return "BayWharf";
-      case TagColor.PrestigeBlue:
+      case FlatUIColor.PrestigeBlue:
         return "PrestigeBlue";
-      case TagColor.LimeSoap:
+      case FlatUIColor.LimeSoap:
         return "LimeSoap";
-      case TagColor.FrenchSkyBlue:
+      case FlatUIColor.FrenchSkyBlue:
         return "FrenchSkyBlue";
-      case TagColor.SaturatedSky:
+      case FlatUIColor.SaturatedSky:
         return "SaturatedSky";
-      case TagColor.UfoGreen:
+      case FlatUIColor.UfoGreen:
         return "UfoGreen";
-      case TagColor.ClearChill:
+      case FlatUIColor.ClearChill:
         return "ClearChill";
-      case TagColor.BrightGreek:
+      case FlatUIColor.BrightGreek:
         return "BrightGreek";
     }
   }
 }
 
-final Map<String, TagColor> tagMap = {
-  'GoldenSand': TagColor.GoldenSand,
-  'Coral': TagColor.Coral,
-  'WildWatermelon': TagColor.WildWatermelon,
-  'Peace': TagColor.Peace,
-  'Grisaille': TagColor.Grisaille,
-  'Orange': TagColor.Orange,
-  'BruschettaTomato': TagColor.BruschettaTomato,
-  'Watermelon': TagColor.Watermelon,
-  'BayWharf': TagColor.BayWharf,
-  'PrestigeBlue': TagColor.PrestigeBlue,
-  'LimeSoap': TagColor.LimeSoap,
-  'FrenchSkyBlue': TagColor.FrenchSkyBlue,
-  'SaturatedSky': TagColor.SaturatedSky,
-  'UfoGreen': TagColor.UfoGreen,
-  'ClearChill': TagColor.ClearChill,
-  'BrightGreek': TagColor.BrightGreek,
+final Map<String, FlatUIColor> flatUIMap = {
+  'GoldenSand': FlatUIColor.GoldenSand,
+  'Coral': FlatUIColor.Coral,
+  'WildWatermelon': FlatUIColor.WildWatermelon,
+  'Peace': FlatUIColor.Peace,
+  'Grisaille': FlatUIColor.Grisaille,
+  'Orange': FlatUIColor.Orange,
+  'BruschettaTomato': FlatUIColor.BruschettaTomato,
+  'Watermelon': FlatUIColor.Watermelon,
+  'BayWharf': FlatUIColor.BayWharf,
+  'PrestigeBlue': FlatUIColor.PrestigeBlue,
+  'LimeSoap': FlatUIColor.LimeSoap,
+  'FrenchSkyBlue': FlatUIColor.FrenchSkyBlue,
+  'SaturatedSky': FlatUIColor.SaturatedSky,
+  'UfoGreen': FlatUIColor.UfoGreen,
+  'ClearChill': FlatUIColor.ClearChill,
+  'BrightGreek': FlatUIColor.BrightGreek,
 };
 
-final Map<TagColor, Color> tagColors = {
-  TagColor.GoldenSand: HexColor.fromRGBHex("#eccc68"),
-  TagColor.Coral:  HexColor.fromRGBHex("#ff7f50"),
-  TagColor.WildWatermelon: HexColor.fromRGBHex("#ff6b81"),
-  TagColor.Peace: HexColor.fromRGBHex("#a4b0be"),
-  TagColor.Grisaille: HexColor.fromRGBHex("#57606f"),
-  TagColor.Orange: HexColor.fromRGBHex("#ffa502"),
-  TagColor.BruschettaTomato: HexColor.fromRGBHex("#ff6348"),
-  TagColor.Watermelon: HexColor.fromRGBHex("#ff4757"),
-  TagColor.BayWharf: HexColor.fromRGBHex("#747d8c"),
-  TagColor.PrestigeBlue: HexColor.fromRGBHex("#2f3542"),
-  TagColor.LimeSoap: HexColor.fromRGBHex("#7bed9f"),
-  TagColor.FrenchSkyBlue: HexColor.fromRGBHex("#70a1ff"),
-  TagColor.SaturatedSky: HexColor.fromRGBHex("#5352ed"),
-  TagColor.UfoGreen: HexColor.fromRGBHex("#2ed573"),
-  TagColor.ClearChill: HexColor.fromRGBHex("#1e90ff"),
-  TagColor.BrightGreek: HexColor.fromRGBHex("#3742fa")
+final Map<FlatUIColor, Color> flatUIColors = {
+  FlatUIColor.GoldenSand: HexColor.fromRGBHex("#eccc68"),
+  FlatUIColor.Coral:  HexColor.fromRGBHex("#ff7f50"),
+  FlatUIColor.WildWatermelon: HexColor.fromRGBHex("#ff6b81"),
+  FlatUIColor.Peace: HexColor.fromRGBHex("#a4b0be"),
+  FlatUIColor.Grisaille: HexColor.fromRGBHex("#57606f"),
+  FlatUIColor.Orange: HexColor.fromRGBHex("#ffa502"),
+  FlatUIColor.BruschettaTomato: HexColor.fromRGBHex("#ff6348"),
+  FlatUIColor.Watermelon: HexColor.fromRGBHex("#ff4757"),
+  FlatUIColor.BayWharf: HexColor.fromRGBHex("#747d8c"),
+  FlatUIColor.PrestigeBlue: HexColor.fromRGBHex("#2f3542"),
+  FlatUIColor.LimeSoap: HexColor.fromRGBHex("#7bed9f"),
+  FlatUIColor.FrenchSkyBlue: HexColor.fromRGBHex("#70a1ff"),
+  FlatUIColor.SaturatedSky: HexColor.fromRGBHex("#5352ed"),
+  FlatUIColor.UfoGreen: HexColor.fromRGBHex("#2ed573"),
+  FlatUIColor.ClearChill: HexColor.fromRGBHex("#1e90ff"),
+  FlatUIColor.BrightGreek: HexColor.fromRGBHex("#3742fa")
 };
 

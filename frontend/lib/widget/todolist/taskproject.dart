@@ -28,8 +28,8 @@ class TaskProjectWidget extends StatelessWidget with StateMixin {
     return Card(
       elevation: 6,
       child: Container(
-        width: settings["widget.taskproject.width"],
-        height: settings["widget.taskproject.height"],
+        width: todoListSettings["widget.taskproject.width"],
+        height: todoListSettings["widget.taskproject.height"],
         decoration: BoxDecoration(
           image: DecorationImage(
             image: buildCover(context),
@@ -37,12 +37,12 @@ class TaskProjectWidget extends StatelessWidget with StateMixin {
             alignment: Alignment.topLeft,
           ),
           
-          borderRadius: settings["widget.taskproject.cover.border-radius"]
+          borderRadius: todoListSettings["widget.taskproject.cover.border-radius"]
         ),
 
         child: Align(
           alignment: const FractionalOffset(0.05, 0.05),
-          child: Text(taskProject.name, style: settings["widget.taskproject.cover.title.style"])
+          child: Text(taskProject.name, style: todoListSettings["widget.taskproject.cover.title.style"])
         ),
       ),
     );

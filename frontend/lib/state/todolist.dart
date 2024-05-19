@@ -21,7 +21,7 @@ class TodoListState extends ChangeNotifier {
   TaskProject? currentTaskProject;
   late TodoListApi api;
   late ImageApi imageApi;
-  Counter counter = Counter(pomodoroTime: settings["state.todolist.pomodoro-time"], shortBreakTime: settings["state.todolist.short-break-time"], longBreakTime: settings["state.todolist.long-break-time"], longBreakInterval: settings["state.todolist.long-break-interval"]);
+  Counter counter = Counter(pomodoroTime: todoListSettings["state.todolist.pomodoro-time"], shortBreakTime: todoListSettings["state.todolist.short-break-time"], longBreakTime: todoListSettings["state.todolist.long-break-time"], longBreakInterval: todoListSettings["state.todolist.long-break-interval"]);
 
   Timer? timer;
 
@@ -30,8 +30,6 @@ class TodoListState extends ChangeNotifier {
     currentTaskNotifier = ValueNotifier(currentTask);
     api = TodoListApi(baseUrl: baseUrl, uid: uid);
     imageApi = ImageApi(baseUrl: baseUrl, uid: uid);
-    api.uid = uid;
-    imageApi.uid = uid;
   }
 
   // for Pomodoro
@@ -105,7 +103,7 @@ class TodoListState extends ChangeNotifier {
   }
 
   void resetTimes() {
-    counter = Counter(pomodoroTime: settings["state.todolist.pomodoro-time"], shortBreakTime: settings["state.todolist.short-break-time"], longBreakTime: settings["state.todolist.long-break-time"], longBreakInterval: settings["state.todolist.long-break-interval"]);
+    counter = Counter(pomodoroTime: todoListSettings["state.todolist.pomodoro-time"], shortBreakTime: todoListSettings["state.todolist.short-break-time"], longBreakTime: todoListSettings["state.todolist.long-break-time"], longBreakInterval: todoListSettings["state.todolist.long-break-interval"]);
     notifyListeners();
   }
 
@@ -244,14 +242,47 @@ class TodoListState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> reorderTask(ReorderRequest request, Task from, Task to) async {
+  Future<void> reorderTask(ReorderRequest request, Task from, Task? to) async {
     await api.reorderTask(request);
-    print(
-        "task: ${from.name}\n"
-        "original index: ${from.index}\n"
-        "reorderAfter: ${request.reorderAfter}"
-    );
+    // ATTENTION , when reordering Task, the parentid is not null always
+    if (to == null) {
+      await reorderTask0(request, from);
+    } else {
+      await reorderTask1(request, from, to);
+    }
 
+    notifyListeners();
+  }
+
+  Future<void> reorderTask0(ReorderRequest request, Task from) async {
+    int reorderAfter = 0;
+    final oldList = taskGroups.firstWhere((element) => element.id == from.parentid);
+    oldList.tasks.removeWhere((element) => element.id == from.id);
+    final newList = taskGroups.firstWhere((element) => element.id == request.parentid);
+
+    if (request.parentid == from.parentid) {
+        oldList.tasks
+            .where((element) => element.index >= reorderAfter && element.index < from.index)
+            .forEach((element) => element.index += 1);
+
+    } else {
+
+      oldList.tasks.where((element) => element.index > from.index)
+          .forEach((element) => element.index -= 1);
+
+      newList.tasks
+          .where((element) => element.index >= reorderAfter + 1)
+          .forEach((element) => element.index += 1);
+    }
+
+    from.index = reorderAfter;
+    newList.tasks.insert(0, from);
+    if (request.parentid != null) {
+      from.parentid = request.parentid!;
+    }
+  }
+
+  Future<void> reorderTask1(ReorderRequest request, Task from, Task to) async {
     final oldList = taskGroups.firstWhere((element) => element.id == from.parentid);
     oldList.tasks.removeWhere((element) => element.id == from.id);
 
@@ -296,9 +327,6 @@ class TodoListState extends ChangeNotifier {
       newList.tasks.insert(reorderAfter, from);
     }
 
-
-
-    notifyListeners();
   }
 
   // TaskGroup

@@ -23,7 +23,7 @@ class PomodoroBoard extends StatelessWidget with StateMixin {
   Widget buildBody(BuildContext context) {
     return Center(
       child: SizedBox(
-        width: settings["widget.pomodoro.counter.width"],
+        width: todoListSettings["widget.pomodoro.counter.width"],
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [

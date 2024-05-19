@@ -1,7 +1,8 @@
 package com.steiner.workbench.app.plugin
 
+import com.steiner.workbench.clipboard.service.TextService
 import com.steiner.workbench.common.service.ImageItemService
-import com.steiner.workbench.common.util.SimpleJWT
+import com.steiner.workbench.daily_attendance.service.DailyAttendanceService
 import com.steiner.workbench.todolist.service.*
 import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
@@ -12,9 +13,6 @@ import org.koin.ktor.plugin.Koin
 fun Application.configureKoin() {
     install(Koin) {
         val backendModule = module {
-            single {
-                SimpleJWT("my-super-secret-for-jwt")
-            }
 
             single {
                 Database.connect(
@@ -66,6 +64,15 @@ fun Application.configureKoin() {
                     ignoreUnknownKeys = true
                     classDiscriminator = "type"
                 }
+            }
+
+
+            single {
+                DailyAttendanceService(get())
+            }
+
+            single {
+                TextService(get())
             }
         }
 

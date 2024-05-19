@@ -147,7 +147,7 @@ class _TaskProjectAddEditState extends State<TaskProjectAddEdit> with StateMixin
         },
 
         leading: const Icon(Icons.image_outlined),
-        title: imageId == null ? null : Image.network(todoListState.imageUrl(imageId!), height: settings["page.taskproject-add-edit.image.height"],),
+        title: imageId == null ? null : Image.network(todoListState.imageUrl(imageId!), height: todoListSettings["page.taskproject-add-edit.image.height"],),
       ),
     );
   }

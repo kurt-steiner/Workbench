@@ -1,9 +1,9 @@
-package com.steiner.workbench.todolist.enumeration
+package com.steiner.workbench.common.util
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class TagColor(val color: String) {
+enum class FlatUIColor(val color: String) {
     GoldenSand("#eccc68"),
     Coral("#ff7f50"),
     WildWatermelon("#ff6b81"),

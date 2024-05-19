@@ -4,10 +4,10 @@ import 'package:path/path.dart' show join;
 
 class ImageApi {
   final String baseUrl;
-  String get url => join(baseUrl, "image");
-  String uid;
+  final String uid;
   late Dio instance;
 
+  String get url => join(baseUrl, "image");
 
   Map<String, String> get headers => {
     "uid": uid

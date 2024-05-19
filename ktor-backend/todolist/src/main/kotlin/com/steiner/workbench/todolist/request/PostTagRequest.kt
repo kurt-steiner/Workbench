@@ -5,13 +5,13 @@ import io.ktor.server.plugins.requestvalidation.*
 import kotlinx.serialization.Serializable
 import com.steiner.workbench.common.`tag-name-length`
 import com.steiner.workbench.common.util.min
-import com.steiner.workbench.todolist.enumeration.TagColor
+import com.steiner.workbench.common.util.FlatUIColor
 
 @Serializable
 class PostTagRequest(
     val name: String,
     val parentid: Int,
-    val color: TagColor
+    val color: FlatUIColor
 ) {
     fun validate(): ValidationResult {
         return listOf(

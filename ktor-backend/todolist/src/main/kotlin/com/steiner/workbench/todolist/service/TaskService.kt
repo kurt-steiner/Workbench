@@ -8,7 +8,7 @@ import com.steiner.workbench.todolist.request.PostTaskTagRequest
 import com.steiner.workbench.todolist.request.ReorderRequest
 import com.steiner.workbench.todolist.request.UpdateTaskRequest
 import com.steiner.workbench.todolist.table.*
-import com.steiner.workbench.todolist.util.mustExistIn
+import com.steiner.workbench.common.util.mustExistIn
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
@@ -250,7 +250,11 @@ class TaskService(val database: Database): KoinComponent {
 
                 update({
                     (parentid eq request.parentid) and
-                            (index greaterEq request.reorderAfter + 1)
+                            (index greaterEq if (request.reorderAfter == 0) {
+                                0
+                            } else {
+                                request.reorderAfter + 1
+                            })
                 }) {
                     with (SqlExpressionBuilder) {
                         it.update(index, index + 1)
@@ -286,7 +290,7 @@ class TaskService(val database: Database): KoinComponent {
             }
 
             update({id eq request.id}) {
-                if (request.parentid == task.parentid) {
+                if (request.parentid == task.parentid || request.reorderAfter == 0) {
                     it[index] = request.reorderAfter
                 } else {
                     it[index] = request.reorderAfter + 1

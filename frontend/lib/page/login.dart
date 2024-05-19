@@ -8,7 +8,6 @@ class LoginPage extends StatelessWidget {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(title: const Text("Login"),),
-      body: ,
     );
   }
 }

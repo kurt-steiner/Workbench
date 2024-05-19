@@ -1,5 +1,7 @@
 package com.steiner.workbench.common
 
+import kotlinx.serialization.json.Json
+
 /// for priority
 const val `priority-default-name` = "普通"
 
@@ -20,5 +22,12 @@ const val `priority-name-length` = 16
 const val `common-string-length-min` = 1
 
 val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$".toRegex()
-// TODO modify this hex color pattern
 val rgbHexColorPattern = Regex("^#[0-9A-Fa-f]{6}\$")
+
+/// for daily-attendance
+const val `daily-attendance-name-length` = 24
+const val `daily-attendance-encouragement-length` = 24
+
+val formatter = Json {
+    classDiscriminator = "type"
+}

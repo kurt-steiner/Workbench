@@ -19,7 +19,7 @@ class TaskGroupWidget extends StatelessWidget with StateMixin {
     todoListState = context.read<TodoListState>();
 
     return SizedBox(
-      width: settings["widget.taskgroup.width"],
+      width: todoListSettings["widget.taskgroup.width"],
       child: buildBody(context),
     );
   }
@@ -99,7 +99,7 @@ class TaskGroupWidget extends StatelessWidget with StateMixin {
     );
 
     return ListTile(
-      contentPadding: settings["widget.taskcard.head.padding"],
+      contentPadding: todoListSettings["widget.taskcard.head.padding"],
       title: title,
 
       trailing: Row(
@@ -155,7 +155,7 @@ class TaskGroupWidget extends StatelessWidget with StateMixin {
 
   Widget buildTaskDrag(BuildContext context, Task task, Material child) {
     final feedback = SizedBox(
-      width: settings["widget.taskgroup.width"] * 0.95,
+      width: todoListSettings["widget.taskgroup.width"] * 0.95,
       child: Opacity(opacity: 0.5, child: child,),
     );
 
@@ -182,8 +182,9 @@ class TaskGroupWidget extends StatelessWidget with StateMixin {
       builder: (context, datas, rejectedData) {
         if (datas.isEmpty) {
           // Container with only height will fill the width
+
           return Container(
-            height: settings["widget.taskcard.height"],
+            height: todoListSettings["widget.taskcard.height"],
           );
         }
 

@@ -13,8 +13,8 @@ class CounterWidget extends StatelessWidget with StateMixin {
     return Card(
       elevation: 3,
       child: Container(
-        width: settings["widget.pomodoro.counter.width"],
-        margin: settings["widget.pomodoro.counter.margin"],
+        width: todoListSettings["widget.pomodoro.counter.width"],
+        margin: todoListSettings["widget.pomodoro.counter.margin"],
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -58,7 +58,7 @@ class CounterWidget extends StatelessWidget with StateMixin {
         selector: (_, state) => state.counter.timeText,
         builder: (_, value, child) => Text(
           value,
-          style: settings["widget.pomodoro.counter.time-text.style"],
+          style: todoListSettings["widget.pomodoro.counter.time-text.style"],
         ),
       ),
     );
@@ -69,7 +69,7 @@ class CounterWidget extends StatelessWidget with StateMixin {
       selector: (_, state) => state.counter.state == RunningState.paused,
       builder: (_, value, child) => ElevatedButton(
           style: ElevatedButton.styleFrom(
-            padding: settings["widget.pomodoro.counter.button.style.padding"],
+            padding: todoListSettings["widget.pomodoro.counter.button.style.padding"],
             backgroundColor: Colors.white
           ),
 
@@ -81,7 +81,7 @@ class CounterWidget extends StatelessWidget with StateMixin {
             }
           },
 
-          child: Text(value ? "START" : "STOP", style: settings["widget.pomodoro.counter.button.text-style"],)
+          child: Text(value ? "START" : "STOP", style: todoListSettings["widget.pomodoro.counter.button.text-style"],)
       ),
     );
   }

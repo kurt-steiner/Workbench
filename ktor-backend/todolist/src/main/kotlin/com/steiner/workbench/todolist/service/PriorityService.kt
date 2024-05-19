@@ -1,16 +1,14 @@
 package com.steiner.workbench.todolist.service
 
 import com.steiner.workbench.common.`priority-default-name`
-import com.steiner.workbench.common.util.color
 import com.steiner.workbench.common.util.dbQuery
 import com.steiner.workbench.todolist.enumeration.PriorityColor
 import com.steiner.workbench.todolist.model.Priority
 import com.steiner.workbench.todolist.request.PostPriorityRequest
 import com.steiner.workbench.todolist.request.UpdatePriorityRequest
 import com.steiner.workbench.todolist.table.Priorities
-import com.steiner.workbench.todolist.table.Priorities.select
 import com.steiner.workbench.todolist.table.TaskPriority
-import com.steiner.workbench.todolist.util.mustExistIn
+import com.steiner.workbench.common.util.mustExistIn
 import io.ktor.server.plugins.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

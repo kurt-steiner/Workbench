@@ -5,12 +5,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import com.steiner.workbench.common.util.Response
+import com.steiner.workbench.common.util.uid
 import com.steiner.workbench.todolist.request.*
 import com.steiner.workbench.todolist.service.*
 import com.steiner.workbench.websocket.endpoint.WebSocketEndpoint
 import com.steiner.workbench.websocket.model.Operation
 import io.ktor.server.plugins.*
-import io.ktor.util.pipeline.*
 import org.koin.ktor.ext.inject
 
 fun Application.routingTodolist() {
@@ -119,6 +119,15 @@ fun Application.routingTodolist() {
 
                 WebSocketEndpoint.notifyFrom(uid(), Operation.SubTaskUpdate(parentid = subtask.parentid, id = request.id))
             }
+
+            put("/reorder") {
+                val request = call.receive<ReorderRequest>()
+                subTaskService.reorder(request)
+                call.respond(Response.Ok("reorder ok", Unit))
+                WebSocketEndpoint.notifyFrom(uid(), Operation.SubTaskReorder(id = request.id, reorderAfter = request.reorderAfter))
+            }
+
+
         }
 
         route("/todolist/task") {
@@ -209,7 +218,10 @@ fun Application.routingTodolist() {
             put("/reorder") {
                 val request = call.receive<ReorderRequest>()
                 taskService.reorder(request)
+                val task = taskService.findOne(request.id)!!
                 call.respond(Response.Ok("reorder ok", Unit))
+
+                WebSocketEndpoint.notifyFrom(uid(), Operation.TaskReorder(id = request.id, reorderAfter = request.reorderAfter, parentid = request.parentid ?: task.parentid))
             }
 
             get("/{id}") {
@@ -315,6 +327,3 @@ fun Application.routingTodolist() {
     }
 }
 
-fun PipelineContext<Unit, ApplicationCall>.uid(): String {
-    return call.request.header("uid")!!
-}

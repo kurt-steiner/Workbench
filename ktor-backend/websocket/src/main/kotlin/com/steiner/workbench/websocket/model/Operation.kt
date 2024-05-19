@@ -69,6 +69,10 @@ sealed class Operation {
     class TaskUpdate(val parentid: Int, val id: Int): Operation()
 
     @Serializable
+    @SerialName("task:reorder")
+    class TaskReorder(val id: Int, val reorderAfter: Int, val parentid: Int): Operation()
+
+    @Serializable
     @SerialName("subtask:post")
     class SubTaskPost(val parentid: Int): Operation()
 
@@ -80,6 +84,9 @@ sealed class Operation {
     @SerialName("subtask:update")
     class SubTaskUpdate(val parentid: Int, val id: Int): Operation()
 
+    @Serializable
+    @SerialName("subtask:reorder")
+    class SubTaskReorder(val id: Int, val reorderAfter: Int): Operation()
     @Serializable
     @SerialName("daily-attendance:post")
     object DailyAttendancePost: Operation()
@@ -107,8 +114,4 @@ sealed class Operation {
     @Serializable
     @SerialName("clipboard:delete")
     class ClipboardDelete(val id: Int): Operation()
-
-    @Serializable
-    @SerialName("samba:update")
-    class SambaUpdate(val parentPath: String): Operation()
 }

@@ -44,7 +44,7 @@ class PostSubTaskRequest {
 class PostTagRequest {
    String name;
    int parentid;
-   TagColor color;
+   FlatUIColor color;
 
   PostTagRequest({
     required this.name,

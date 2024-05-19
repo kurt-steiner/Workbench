@@ -4,6 +4,7 @@ import 'package:frontend/model/todolist.dart';
 import 'package:frontend/request/todolist.dart';
 import 'package:frontend/settings.dart';
 import 'package:frontend/state/todolist.dart';
+import 'package:frontend/widget/pomodoro/taskcard.dart';
 import 'package:provider/provider.dart';
 
 class TaskAdd extends StatefulWidget {
@@ -32,9 +33,18 @@ class _TaskAddState extends State<TaskAdd> with StateMixin {
   Widget build(BuildContext context) {
     todoListState = context.read<TodoListState>();
 
-    return Card(
+    return Stack(
+      children: [
+        buildCard(context),
+
+      ],
+    );
+  }
+
+  Widget buildCard(BuildContext context) {
+    final card = Card(
       color: Colors.white,
-      margin: settings["widget.taskcard.margin"],
+      margin: todoListSettings["widget.taskcard.margin"],
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -42,6 +52,38 @@ class _TaskAddState extends State<TaskAdd> with StateMixin {
           buildTaskAddFooter(context)
         ],
       ),
+    );
+
+    final dragTarget = DragTarget<Task>(
+      onWillAccept: (from) => !(from?.index == 0 && from?.parentid == widget.taskGroup.id),
+      onAccept: (from) async {
+        final request = ReorderRequest(id: from.id, reorderAfter: 0, parentid: widget.taskGroup.id);
+        await todoListState.reorderTask(request, from, null);
+      },
+
+      builder: (context, datas, rejectedData) {
+        if (datas.isEmpty) {
+          return Container(
+            height: todoListSettings["widget.taskgroup.add.height"],
+          );
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            card,
+            const SizedBox(height: 4,),
+            TaskCard(task: datas.first!)
+          ],
+        );
+      },
+    );
+
+    return Stack(
+      children: [
+        card,
+        dragTarget
+      ],
     );
   }
 

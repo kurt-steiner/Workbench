@@ -17,7 +17,7 @@ class TaskCard extends StatelessWidget with StateMixin {
 
     return Container(
       color: Colors.white,
-      margin: settings["widget.taskcard.margin"],
+      margin: todoListSettings["widget.taskcard.margin"],
       child: ListTile(
         onTap: () {
           todoListState.setCurrentTask(task);
