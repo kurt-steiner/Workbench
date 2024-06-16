@@ -10,6 +10,7 @@ import 'package:frontend/request/todolist.dart';
 import 'package:frontend/settings.dart';
 import 'package:frontend/util/counter.dart';
 import 'package:path/path.dart' show join;
+import 'package:frontend/global.dart' as global;
 
 class TodoListState extends ChangeNotifier {
   List<TaskProject> taskProjects = [];
@@ -26,10 +27,10 @@ class TodoListState extends ChangeNotifier {
   Timer? timer;
 
   late ValueNotifier<Task?> currentTaskNotifier;
-  TodoListState({required String baseUrl, required String uid}) {
+  TodoListState() {
     currentTaskNotifier = ValueNotifier(currentTask);
-    api = TodoListApi(baseUrl: baseUrl, uid: uid);
-    imageApi = ImageApi(baseUrl: baseUrl, uid: uid);
+    api = TodoListApi(baseUrl: global.baseUrl!, uid: global.uid!);
+    imageApi = ImageApi(baseUrl: global.baseUrl!, uid: global.uid!);
   }
 
   // for Pomodoro

@@ -36,6 +36,7 @@ class TextService(val database: Database) {
     suspend fun findAll(page: Int, size: Int): Page<Text> = dbQuery(database) {
         val content = with (Texts) {
             selectAll()
+                .orderBy(this.id, order = SortOrder.DESC)
                 .limit(size, offset = page * size.toLong())
                 .map {
                     Text(

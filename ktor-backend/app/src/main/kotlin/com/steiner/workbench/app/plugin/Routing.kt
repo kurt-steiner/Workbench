@@ -8,6 +8,7 @@ import com.steiner.workbench.common.util.urljoin
 import com.steiner.workbench.daily_attendance.routingDailyAttendance
 import com.steiner.workbench.todolist.routingTodolist
 import com.steiner.workbench.websocket.routingWebSocket
+import com.steiner.workbench.websocket.socketMap
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -78,6 +79,18 @@ fun Application.configureRouting() {
             }
 
         }
+
+        route("login-check") {
+            get {
+                val uid: String = call.request.queryParameters["uid"]!!
+                if (socketMap.containsKey(uid)) {
+                    throw BadRequestException("duplicate uid")
+                }
+
+                call.respond(HttpStatusCode.OK)
+            }
+        }
+
     }
 
     routingTodolist()

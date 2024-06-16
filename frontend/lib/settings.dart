@@ -84,6 +84,8 @@ final todoListNavigationKey = GlobalKey<NavigatorState>();
 final dailyAttendanceNavigationKey = GlobalKey<NavigatorState>();
 
 final scaffoldGlobalKey = GlobalKey<ScaffoldState>();
+const todoListInitialRoute = "todolist/taskprojects";
+
 Map<String, Widget Function(BuildContext)> todoListRoutes = {
   "todolist/taskprojects": (_) => TaskProjectBoard(),
   "todolist/taskgroups": (_) => TaskGroupBoard(),
@@ -93,6 +95,7 @@ Map<String, Widget Function(BuildContext)> todoListRoutes = {
 };
 
 
+const dailyAttendanceInitialRoute = "daily-attendance/task-page";
 Map<String, Widget Function(BuildContext)> dailyAttendanceRoutes = {
   "daily-attendance/task-page": (_) => TaskPage(),
   "daily-attendance/task-record": (_) => TaskRecord(),

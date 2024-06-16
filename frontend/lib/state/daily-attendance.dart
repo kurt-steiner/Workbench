@@ -6,6 +6,7 @@ import 'package:frontend/api/image.dart';
 import 'package:frontend/model/daily-attendance.dart' as da;
 import 'package:frontend/request/daily-attendance.dart';
 import 'package:path/path.dart' show join;
+import 'package:frontend/global.dart' as global;
 
 enum ShowMode {
   persistence,
@@ -16,7 +17,7 @@ class DailyAttendanceState extends ChangeNotifier {
   static Cron cron = Cron();
   late final DailyAttendanceApi api;
   late final ImageApi imageApi;
-  final FlutterLocalNotificationsPlugin plugin;
+  FlutterLocalNotificationsPlugin? plugin;
   final Map<da.Group, List<da.Task>> tasks = Map();
 
   // 当天所有任务
@@ -28,9 +29,9 @@ class DailyAttendanceState extends ChangeNotifier {
   List<String> weekDays = [];
   String? currentDay;
 
-  DailyAttendanceState({required String baseUrl, required String uid, required this.plugin}) {
-    api = DailyAttendanceApi(baseUrl: baseUrl, uid: uid);
-    imageApi = ImageApi(baseUrl: baseUrl, uid: uid);
+  DailyAttendanceState({this.plugin}) {
+    api = DailyAttendanceApi(baseUrl: global.baseUrl!, uid: global.uid!);
+    imageApi = ImageApi(baseUrl: global.baseUrl!, uid: global.uid!);
   }
 
   String imageUrl(int id) => join(imageApi.url, "download", id.toString());
@@ -78,7 +79,7 @@ class DailyAttendanceState extends ChangeNotifier {
 
     for (final notifyTime in task.notifyTimes) {
       cron.schedule(Schedule.parse("${notifyTime.minute} ${notifyTime.hour} * * *"), () {
-        plugin.show(task.id + 1, task.name, task.encouragement, null);
+        plugin?.show(task.id + 1, task.name, task.encouragement, null);
       });
     }
 
@@ -256,7 +257,7 @@ class DailyAttendanceState extends ChangeNotifier {
         cron.schedule(Schedule.parse(
           "${notifyTime.minute} ${notifyTime.hour} * * *"
         ), () {
-          plugin.show(task.id + 1, task.name, task.encouragement, null);
+          plugin?.show(task.id + 1, task.name, task.encouragement, null);
         });
       }
     }

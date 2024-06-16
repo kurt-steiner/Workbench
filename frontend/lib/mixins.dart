@@ -1,3 +1,4 @@
+import 'package:frontend/state/clipboard.dart';
 import 'package:frontend/state/daily-attendance.dart';
 import 'package:frontend/state/todolist.dart';
 
@@ -9,4 +10,8 @@ mixin StateMixin {
   DailyAttendanceState? _dailyAttendanceState;
   DailyAttendanceState get dailyAttendanceState => _dailyAttendanceState!;
   set dailyAttendanceState(DailyAttendanceState value) => _dailyAttendanceState ??= value;
+
+  ClipboardState? _clipboardState;
+  ClipboardState get clipboardState => _clipboardState!;
+  set clipboardState(ClipboardState value) => _clipboardState ??= value;
 }

@@ -31,7 +31,7 @@ fun Application.routingClipboard() {
                 call.respond(Response.Ok("these content", service.findAll(page, size)))
             }
 
-            delete("/id") {
+            delete("/{id}") {
                 val id = call.parameters["id"]!!.toInt()
 
                 service.deleteOne(id)

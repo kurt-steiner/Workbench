@@ -6,18 +6,17 @@
 而有时候我不在电脑前操作，需要在手机上布置任务，从而又有了适配多个平台的需求
 市面上有一个类似的应用，叫滴答清单，可惜这玩意要钱，秉承着能白嫖就绝不充钱的原则，我就闲得蛋疼开发出了这么一款应用，顺带作为我的毕业设计，历时三个月的开发终于开发完了，或许吧
 
-话不多说，这里以linux平台的应用为例，看看怎么操作把
+** 大范围更新 till 2024.6.16
+这次的更新放弃了使用SpringBoot，因为其对Kotlin协程的支持不够完善，转而去使用Ktor框架，前端这次尽最大可能去使用 *Material Design 3* 设计样式
+整体功能上，裁剪掉了Samba的服务共享，将所用功能整理为3类，即剪切板，任务列表和习惯打卡，先完善这三个功能，再将其他功能加上，第一次写这些功能的时候有些顾头不顾腚，改一段代码要考虑耦合
 
-** 第一次进入应用
-https://github.com/nesteiner/Workbench/assets/46296608/bb7299f5-dcd4-46ac-b16c-286a0d0b6828
+** 登录
+
 ** 主页
-https://github.com/nesteiner/Workbench/assets/46296608/9fcc38ed-eab5-42fb-a2c2-e9030e6ee02c
-** 待办清单
-https://github.com/nesteiner/Workbench/assets/46296608/074e6bf1-f5e9-4d19-bbdc-13618af70c0a
+
+** 任务列表
+
 ** 习惯打卡
-https://github.com/nesteiner/Workbench/assets/46296608/f265d144-f1a7-4665-b868-64837f31689e
-** samba 文件共享
-https://github.com/nesteiner/Workbench/assets/46296608/a6e5fc65-cc04-4807-966a-4eec6beffe92
 
 ** 其他操作
 需要登出了，就点击侧边的登出按扭
@@ -77,16 +76,3 @@ Openjdk-17
 * 缺陷
 - 并发需求
 - 没有同步机制
-
-
-
-
-* 下一步
-** Sidebar navigator
-1. use controller
-** GoRouter
-
-* new Feature
-- [ ] drop login
-- [ ] drop register
-- [ ] drop jwt token
