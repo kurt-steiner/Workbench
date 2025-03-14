@@ -1,5 +1,5 @@
 #+title: README of Workbench
-
+这个项目放弃更新了，我打算另起炉灶，精简规模，新的仓库在 https://github.com/kurt-steiner/pomodoro-in-todolist-and-habit-tracking
 * Introduction
 这个项目是个人拿来玩的，由于个人要用到多种学习工具，比如番茄钟啊，待办清单呐，习惯打卡啊，
 这些东西都只是一个单一的功能，没有软件将他们集成在一起，搞得我每次都要不停的切换页面，因此我需要一个一站式工作台来解决这个痛点
